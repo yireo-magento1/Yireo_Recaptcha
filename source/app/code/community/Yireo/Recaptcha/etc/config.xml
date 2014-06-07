@@ -1,0 +1,128 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Google reCaptcha extension for Magento 
+ *
+ * @package     Yireo_Recaptcha
+ * @author      Yireo (http://www.yireo.com/)
+ * @copyright   Copyright (C) 2014 Yireo (http://www.yireo.com/)
+ * @license     Open Source License (OSL v3) (OSL)
+ */
+-->
+<config>
+    <modules>
+        <Yireo_Recaptcha>
+            <version>0.1.13</version>
+        </Yireo_Recaptcha>
+    </modules>
+
+    <global>
+        <blocks>
+            <recaptcha>
+                <class>Yireo_Recaptcha_Block</class>
+            </recaptcha>
+        </blocks>
+
+        <models>
+            <recaptcha>
+                <class>Yireo_Recaptcha_Model</class>
+            </recaptcha>
+        </models>
+
+        <helpers>
+            <recaptcha>
+                <class>Yireo_Recaptcha_Helper</class>
+            </recaptcha>
+        </helpers>
+    </global>
+
+    <frontend>
+        <events>
+            <controller_action_predispatch>
+                <observers>
+                    <recaptcha_controller_action_predispatch>
+                        <class>recaptcha/observer</class>
+                        <method>controllerActionPredispatch</method>
+                    </recaptcha_controller_action_predispatch>
+                </observers>
+            </controller_action_predispatch>
+            <controller_action_layout_load_before>
+                <observers>
+                    <recaptcha_controller_action_layout_load_before>
+                        <class>recaptcha/observer</class>
+                        <method>controllerActionLayoutLoadBefore</method>
+                    </recaptcha_controller_action_layout_load_before>
+                </observers>
+            </controller_action_layout_load_before>
+            <core_block_abstract_to_html_before>
+                <observers>
+                    <recaptcha_core_block_abstract_to_html_before>
+                        <type>singleton</type>
+                        <class>Yireo_Recaptcha_Model_Observer</class>
+                        <method>coreBlockAbstractToHtmlBefore</method>
+                    </recaptcha_core_block_abstract_to_html_before>
+                </observers>
+            </core_block_abstract_to_html_before>
+        </events>
+
+        <layout>
+            <updates>
+                <recaptcha>
+                    <file>recaptcha.xml</file>
+                </recaptcha>
+            </updates>
+        </layout>
+    </frontend>
+
+    <adminhtml>
+        <translate>
+            <modules>
+                <Yireo_Recaptcha>
+                    <files>
+                        <default>Yireo_Recaptcha.csv</default>
+                    </files>
+                </Yireo_Recaptcha>
+            </modules>
+        </translate>
+        <acl>
+            <resources>
+                <admin>
+                    <children>
+                        <system>
+                            <children>
+                                <config>
+                                    <children>
+                                        <recaptcha translate="title" module="recaptcha">
+                                            <title>Recaptcha Section</title>
+                                        </recaptcha>
+                                    </children>
+                                </config>
+                            </children>
+                        </system>
+                    </children>
+                </admin>
+            </resources>
+        </acl>
+    </adminhtml>
+
+    <default>
+        <web>
+            <recaptcha>
+                <enabled>1</enabled>
+                <public_key>YOUR PUBLIC KEY</public_key>
+                <private_key>YOUR PRIVATE KEY</private_key>
+                <theme>clean</theme>
+                <api>default</api>
+                <overwrite_customer_form_register>1</overwrite_customer_form_register>
+                <overwrite_customer_form_login>1</overwrite_customer_form_login>
+                <overwrite_customer_form_forgotpassword>1</overwrite_customer_form_forgotpassword>
+                <overwrite_contacts_form>1</overwrite_contacts_form>
+                <overwrite_sendfriend_send>0</overwrite_sendfriend_send>
+                <overwrite_review_form>0</overwrite_review_form>
+                <overwrite_checkout_onepage_login>0</overwrite_checkout_onepage_login>
+                <overwrite_checkout_onepage_billing>0</overwrite_checkout_onepage_billing>
+                <captcha_for_loggedin>0</captcha_for_loggedin>
+            </recaptcha>
+        </web>
+    </default>
+</config>
