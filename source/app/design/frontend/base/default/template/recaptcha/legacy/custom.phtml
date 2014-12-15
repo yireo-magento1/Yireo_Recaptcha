@@ -1,0 +1,49 @@
+<?php
+/**
+ * Google Recaptcha for Magento 
+ *
+ * @package     Yireo_Recaptcha
+ * @author      Yireo (http://www.yireo.com/)
+ * @copyright   Copyright (c) 2012 Yireo (http://www.yireo.com/)
+ * @license     Open Software License
+ *
+ * This PHTML-template is used when the reCAPTCHA theme-setting is set to "custom"
+ * See http://code.google.com/apis/recaptcha/docs/customization.html for more details
+ */
+
+$unique_id = $this->getUniqueId();
+?>
+<script type="text/javascript">
+var RecaptchaOptions = {
+    theme : 'custom',
+    lang : '<?php echo $this->getLangCode(); ?>',
+    custom_theme_widget: 'recaptcha_widget_<?php echo $unique_id; ?>'
+}
+</script>
+
+<div id="recaptcha_widget_<?php echo $unique_id; ?>" style="display:none">
+    <div id="recaptcha_image"></div>
+    <div class="recaptcha_only_if_incorrect_sol" style="color:red"><span><?php echo $this->__('Incorrect. Please try again'); ?></span></div>
+    <span class="recaptcha_only_if_image"><?php echo $this->__('Enter the words above'); ?>:</span>
+    <span class="recaptcha_only_if_audio"><?php echo $this->__('Enter the numbers you hear'); ?>:</span>
+    <input type="text" id="recaptcha_response_field" name="recaptcha_response_field" />
+
+    <div>
+        <a href="javascript:Recaptcha.reload()"><?php echo $this->__('Get another CAPTCHA'); ?></a>
+    </div>
+    <div class="recaptcha_only_if_image">
+        <a href="javascript:Recaptcha.switch_type('audio')"><?php echo $this->__('Get an audio CAPTCHA'); ?></a>
+    </div>
+    <div class="recaptcha_only_if_audio">
+        <a href="javascript:Recaptcha.switch_type('image')"><?php echo $this->__('Get an image CAPTCHA'); ?></a>
+    </div>
+    <div>
+        <a href="javascript:Recaptcha.showhelp()"><?php echo $this->__('Help'); ?></a>
+    </div>
+</div>
+<script type="text/javascript" src="//www.google.com/recaptcha/api/challenge?k=<?php echo $this->getPublicKey(); ?>"></script>
+<noscript>
+    <iframe src="//www.google.com/recaptcha/api/noscript?k=<?php echo $this->getPublicKey(); ?>" height="300" width="500" frameborder="0"></iframe><br/>
+    <textarea name="recaptcha_challenge_field" rows="3" cols="40"></textarea>
+    <input type="hidden" name="recaptcha_response_field" value="manual_challenge"/>
+</noscript>

@@ -12,4 +12,6 @@
  */
 
 ?>
-<div class="g-recaptcha" data-sitekey="<?php echo $this->getSiteKey(); ?>"></div>
+<?php if($this->getApi() == 'ajax') : ?>
+<script src="https://www.google.com/recaptcha/api/js/recaptcha_ajax.js" async defer></script>
+<?php endif; ?>

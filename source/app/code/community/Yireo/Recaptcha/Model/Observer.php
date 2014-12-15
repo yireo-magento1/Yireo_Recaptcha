@@ -23,8 +23,12 @@ class Yireo_Recaptcha_Model_Observer
     public function controllerActionLayoutLoadBefore($observer)
     {
         $overwrites = Mage::helper('recaptcha')->getOverwrites();
+        $mode = Mage::helper('recaptcha')->getMode();
+
         foreach($overwrites as $layout_update => $post_url) {
-            if(Mage::getStoreConfig('web/recaptcha/overwrite_'.$layout_update)) {
+            if($mode == 'new' && Mage::getStoreConfig('recaptcha/settings/overwrite_'.$layout_update)) {
+                $observer->getEvent()->getLayout()->getUpdate()->addHandle('recaptcha_'.$layout_update);
+            } elseif($mode == 'legacy' && Mage::getStoreConfig('web/recaptcha/overwrite_'.$layout_update)) {
                 $observer->getEvent()->getLayout()->getUpdate()->addHandle('recaptcha_'.$layout_update);
             }
         }
@@ -63,11 +67,14 @@ class Yireo_Recaptcha_Model_Observer
      */
     public function controllerActionPredispatch($observer)
     {
-        if(Mage::helper('recaptcha')->forceCaptcha() == false) {
+        if(Mage::helper('recaptcha')->useCaptcha() == false) {
             return $this;
         }
 
+        $mode = Mage::helper('recaptcha')->getMode();
         $request = $observer->getEvent()->getControllerAction()->getRequest();
+        $remoteIp = $request->getServer('REMOTE_ADDR');
+
         if($request->isPost()) {
             $post = $request->getPost();
             $use_recaptcha = false;
@@ -75,7 +82,7 @@ class Yireo_Recaptcha_Model_Observer
             // Whenever a CAPTCHA-field is present in the POST, enable checking
             if(is_array($post)) {
                 foreach($post as $name => $value) {
-                    if(preg_match('/^recaptcha_/', $name)) {
+                    if(stristr($name, 'recaptcha')) {
                         $use_recaptcha = true;
                         break;
                     }
@@ -107,17 +114,39 @@ class Yireo_Recaptcha_Model_Observer
             // If reCAPTCHA should be applied (and checked here)
             if($use_recaptcha == true) {
 
+                $recaptcha_valid = true;
+
                 // Initialize reCAPTCHA
                 Mage::helper('recaptcha')->includeRecaptcha();
-                $private_key = Mage::getStoreConfig('web/recaptcha/private_key');
-                $recaptcha = recaptcha_check_answer($private_key,
-                    $_SERVER['REMOTE_ADDR'],
-                    $request->getPost('recaptcha_challenge_field'),
-                    $request->getPost('recaptcha_response_field')
-                );
+
+                // New mode
+                if($mode == 'new') {
+
+                    $secret_key = Mage::getStoreConfig('recaptcha/settings/secret_key');
+                    $recaptcha = new ReCaptcha($secret_key);
+
+                    $response = $recaptcha->verifyResponse(
+                        $remoteIp,
+                        $request->getPost('g-recaptcha-response')
+                    );
+
+                    $recaptcha_valid = ($response != null && $response->success) ? true : false;
+
+                // Legacy mode
+                } elseif($mode == 'legacy') {
+
+                    $private_key = Mage::getStoreConfig('web/recaptcha/private_key');
+                    $recaptcha = recaptcha_check_answer($private_key,
+                        $remoteIp,
+                        $request->getPost('recaptcha_challenge_field'),
+                        $request->getPost('recaptcha_response_field')
+                    );
+                    
+                    $recaptcha_valid = (bool)$recaptcha->is_valid;
+                }
 
                 // Recaptcha returned false
-                if ($recaptcha->is_valid == false) {
+                if ($recaptcha_valid == false) {
 
                     // Return AJAX-errors first
                     if($request->isXmlHttpRequest()) {

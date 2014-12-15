@@ -11,7 +11,7 @@
 /**
  * General helper
  */
-class Yireo_Recaptcha_Block_Default extends Mage_Core_Block_Template
+class Yireo_Recaptcha_Block_Default extends Yireo_Recaptcha_Block_Abstract
 {
     /*
      * Method to return an unique block ID
@@ -37,16 +37,33 @@ class Yireo_Recaptcha_Block_Default extends Mage_Core_Block_Template
     public function _toHtml()
     {
         // If CAPTCHA is not enabled, return nothing
-        if(Mage::helper('recaptcha')->forceCaptcha() == false) {
+        if(Mage::helper('recaptcha')->useCaptcha() == false) {
             return null;
         }
 
+        $mode = Mage::helper('recaptcha')->getMode();
+        if($mode == 'legacy') {
+            return $this->addLegacyHtml();
+        } else {
+            return $this->addHtml();
+        }
+    }
+
+    /*
+     * Add the legacy reCaptcha code
+     * 
+     * @access public
+     * @parameter null
+     * @return string
+     */
+    public function addLegacyHtml()
+    {
         // Load variables
-        $public_key = trim(Mage::getStoreConfig('web/recaptcha/public_key'));
-        $private_key = trim(Mage::getStoreConfig('web/recaptcha/private_key'));
-        $theme = Mage::getStoreConfig('web/recaptcha/theme');
-        $api = Mage::getStoreConfig('web/recaptcha/api'); // ajax | default
-        $lang_code = preg_replace('/_([a-zA-Z0-9]+)$/', '', Mage::app()->getLocale()->getLocaleCode());
+        $public_key = $this->getPublicKey();
+        $private_key = $this->getPrivateKey();
+        $theme = $this->getTheme();
+        $api = $this->getApi();
+        $lang_code = $this->getLangCode();
         $unique_id = $this->getUniqueId();
         if(empty($theme)) $theme = 'clean';
 
@@ -54,7 +71,7 @@ class Yireo_Recaptcha_Block_Default extends Mage_Core_Block_Template
         if($theme == 'custom') {
             $this->setPublicKey($public_key);
             $this->setLangCode($lang_code);
-            $this->setTemplate('recaptcha/custom.phtml');
+            $this->setTemplate('recaptcha/legacy/custom.phtml');
             return parent::_toHtml();
         }
 
@@ -62,13 +79,11 @@ class Yireo_Recaptcha_Block_Default extends Mage_Core_Block_Template
         Mage::helper('recaptcha')->includeRecaptcha();
 
         // Load the right scheme
-        $scheme = Mage::app()->getRequest()->getScheme();
         $ssl = (Mage::app()->getRequest()->getScheme() == 'https') ? true : false ;
 
         $html = null;
         if($api == 'ajax') {
-            $html .= "<script type=\"text/javascript\" src=\"".$scheme."://www.google.com/recaptcha/api/js/recaptcha_ajax.js\"></script>\n"
-                . "<script type=\"text/javascript\">\n"
+            $html .= "<script>\n"
                 . "window.onload = function() {\n"
                 . "    Recaptcha.create('".$public_key."', 'recaptcha_div_".$unique_id."', {"
                 . "        theme : '".$theme."',"
@@ -79,7 +94,7 @@ class Yireo_Recaptcha_Block_Default extends Mage_Core_Block_Template
                 . "<div id=\"recaptcha_div_".$unique_id."\"></div>"
             ;
         } else {
-            $html .= "<script type=\"text/javascript\">\n"
+            $html .= "<script>\n"
                 . " var RecaptchaOptions = {\n"
                 . "     theme : '".$theme."',\n"
                 . "     lang : '".Mage::app()->getLocale()->getLocaleCode()."'\n"
@@ -88,6 +103,38 @@ class Yireo_Recaptcha_Block_Default extends Mage_Core_Block_Template
                 . recaptcha_get_html($public_key, null, $ssl)
             ;
         }
+
+        return $html;
+    }
+
+    /*
+     * Add the current reCaptcha code
+     * 
+     * @access public
+     * @parameter null
+     * @return string
+     */
+    public function addHtml()
+    {
+        // Load variables
+        $theme = $this->getTheme();
+        $site_key = $this->getSiteKey();
+
+        // Output the custom template
+        if($theme == 'custom') {
+            $this->setTemplate('recaptcha/custom.phtml');
+            return parent::_toHtml();
+        }
+
+        // Helper-method to include the CAPTCHA-library
+        Mage::helper('recaptcha')->includeRecaptcha();
+
+        // Load the right scheme
+        $ssl = (Mage::app()->getRequest()->getScheme() == 'https') ? true : false ;
+
+        $html = null;
+        $html .= "<div class=\"g-recaptcha\" data-theme=\"".$theme."\" data-sitekey=\"".$site_key."\"></div>\n"
+        ;
 
         return $html;
     }

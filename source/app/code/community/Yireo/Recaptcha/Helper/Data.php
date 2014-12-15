@@ -67,10 +67,17 @@ class Yireo_Recaptcha_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function includeRecaptcha()
     {
-        if(function_exists('_recaptcha_qsencode')) return;
-        if(function_exists('_recaptcha_http_post')) return;
+        $mode = $this->getMode();
+        if($mode == 'legacy') {
+            if(function_exists('_recaptcha_qsencode')) return;
+            if(function_exists('_recaptcha_http_post')) return;
+            require_once BP.DS.'app'.DS.'code'.DS.'community'.DS.'Yireo'.DS.'Recaptcha'.DS.'Lib'.DS.'Legacy'.DS.'recaptchalib.php';
 
-        require_once BP.DS.'app'.DS.'code'.DS.'community'.DS.'Yireo'.DS.'Recaptcha'.DS.'Lib'.DS.'recaptchalib.php';
+        } else {
+            if(class_exists('ReCaptchaResponse')) return;
+            if(class_exists('ReCaptcha')) return;
+            require_once BP.DS.'app'.DS.'code'.DS.'community'.DS.'Yireo'.DS.'Recaptcha'.DS.'Lib'.DS.'recaptchalib.php';
+        }
     }
 
     /*
@@ -80,21 +87,48 @@ class Yireo_Recaptcha_Helper_Data extends Mage_Core_Helper_Abstract
      * @parameter null
      * @return boolean
      */
-    public function forceCaptcha()
+    public function getMode()
     {
-        if(Mage::getStoreConfig('web/recaptcha/enabled') == 0) {
+        $mode = false;
+        if(Mage::getStoreConfig('recaptcha/settings/enabled') == 1) {
+            $mode = 'new';
+        } elseif(Mage::getStoreConfig('web/recaptcha/enabled') == 1) {
+            $mode = 'legacy';
+        }
+
+        return $mode;
+    }
+
+    /*
+     * Check whether CAPTCHA can be loaded or not
+     * 
+     * @access public
+     * @parameter null
+     * @return boolean
+     */
+    public function useCaptcha()
+    {
+        $mode = $this->getMode();
+        if(empty($mode)) {
             return false;
         }
 
         if(Mage::getSingleton('customer/session')->isLoggedIn() == true) {
-            if(Mage::getStoreConfig('web/recaptcha/captcha_for_loggedin') == 0) {
+            if($mode == 'new' && Mage::getStoreConfig('recaptcha/settings/captcha_for_loggedin') == 0) {
+                return false;
+            } elseif($mode == 'legacy' && Mage::getStoreConfig('web/recaptcha/captcha_for_loggedin') == 0) {
                 return false;
             }
         }
 
-        $public_key = trim(Mage::getStoreConfig('web/recaptcha/public_key'));
-        $private_key = trim(Mage::getStoreConfig('web/recaptcha/private_key'));
-        if(empty($public_key) || empty($private_key)) {
+        $siteKey = trim(Mage::getStoreConfig('recaptcha/settings/site_key'));
+        $secretKey = trim(Mage::getStoreConfig('recaptcha/settings/secret_key'));
+        $legacyPublicKey = trim(Mage::getStoreConfig('web/recaptcha/public_key'));
+        $legacyPrivateKey = trim(Mage::getStoreConfig('web/recaptcha/private_key'));
+
+        if($mode == 'new' && (empty($siteKey) || empty($secretKey))) {
+            return false;
+        } elseif($mode == 'legacy' && (empty($legacyPublicKey) || empty($legacyPrivateKey))) {
             return false;
         }
 

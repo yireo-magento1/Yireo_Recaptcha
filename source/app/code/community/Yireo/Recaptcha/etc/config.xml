@@ -12,7 +12,7 @@
 <config>
     <modules>
         <Yireo_Recaptcha>
-            <version>0.1.13</version>
+            <version>0.2.0</version>
         </Yireo_Recaptcha>
     </modules>
 
@@ -106,11 +106,27 @@
     </adminhtml>
 
     <default>
+        <recaptcha>
+            <settings>
+                <enabled>1</enabled>
+                <site_key></site_key>
+                <secret_key></secret_key>
+                <overwrite_customer_form_register>1</overwrite_customer_form_register>
+                <overwrite_customer_form_login>1</overwrite_customer_form_login>
+                <overwrite_customer_form_forgotpassword>1</overwrite_customer_form_forgotpassword>
+                <overwrite_contacts_form>1</overwrite_contacts_form>
+                <overwrite_sendfriend_send>0</overwrite_sendfriend_send>
+                <overwrite_review_form>0</overwrite_review_form>
+                <overwrite_checkout_onepage_login>0</overwrite_checkout_onepage_login>
+                <overwrite_checkout_onepage_billing>0</overwrite_checkout_onepage_billing>
+                <captcha_for_loggedin>0</captcha_for_loggedin>
+            </settings>
+        </recaptcha>
         <web>
             <recaptcha>
                 <enabled>1</enabled>
-                <public_key>YOUR PUBLIC KEY</public_key>
-                <private_key>YOUR PRIVATE KEY</private_key>
+                <public_key></public_key>
+                <private_key></private_key>
                 <theme>clean</theme>
                 <api>default</api>
                 <overwrite_customer_form_register>1</overwrite_customer_form_register>
