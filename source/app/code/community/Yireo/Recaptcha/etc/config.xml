@@ -5,14 +5,14 @@
  *
  * @package     Yireo_Recaptcha
  * @author      Yireo (http://www.yireo.com/)
- * @copyright   Copyright (C) 2014 Yireo (http://www.yireo.com/)
+ * @copyright   Copyright 2015 Yireo (http://www.yireo.com/)
  * @license     Open Source License (OSL v3) (OSL)
  */
 -->
 <config>
     <modules>
         <Yireo_Recaptcha>
-            <version>0.2.0</version>
+            <version>0.2.2</version>
         </Yireo_Recaptcha>
     </modules>
 
