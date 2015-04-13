@@ -44,6 +44,31 @@ class Yireo_Recaptcha_Helper_Data extends Mage_Core_Helper_Abstract
     public function getCustomUrls()
     {
         $value = Mage::getStoreConfig('web/recaptcha/custom_urls');
+        return $this->getArrayFromString($value);
+    }
+
+    /*
+ * Load the configured skip URLs as simple array
+ *
+ * @access public
+ * @parameter null
+ * @return array
+ */
+    public function getSkipUrls()
+    {
+        $value = Mage::getStoreConfig('web/recaptcha/skip_urls');
+        return $this->getArrayFromString($value);
+    }
+
+    /*
+ * Convert a CSV string into an array
+ *
+ * @access public
+ * @parameter null
+ * @return array
+ */
+    public function getArrayFromString($value)
+    {
         $return = array();
         if (!empty($value)) {
             $value = str_replace("\n", ',', $value);

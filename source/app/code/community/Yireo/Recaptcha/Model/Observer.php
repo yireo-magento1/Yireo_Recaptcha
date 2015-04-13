@@ -76,6 +76,14 @@ class Yireo_Recaptcha_Model_Observer
         $request = $observer->getEvent()->getControllerAction()->getRequest();
         $remoteIp = $request->getServer('REMOTE_ADDR');
 
+        $skip_urls = Mage::helper('recaptcha')->getSkipUrls();
+        foreach ($skip_urls as $skip_url) {
+            if (stristr($request->getOriginalPathInfo(), $skip_url)) {
+                Mage::helper('recaptcha')->debug('Recaptcha skipped for URL', $skip_url);
+                return $this;
+            }
+        }
+
         if ($request->isPost()) {
             $post = $request->getPost();
             $useRecaptcha = false;
