@@ -1,0 +1,55 @@
+<?php
+/**
+ * Google Recaptcha for Magento
+ *
+ * @package     Yireo_Recaptcha
+ * @author      Yireo (http://www.yireo.com/)
+ * @copyright   Copyright (c) 2012 Yireo (http://www.yireo.com/)
+ * @license     Open Software License
+ *
+ * This PHTML-template is used when the reCAPTCHA theme-setting is set to "custom"
+ * See http://code.google.com/apis/recaptcha/docs/customization.html for more details
+ */
+
+$uniqueId = $this->getUniqueId();
+$domId = 'g-recaptcha-'.$uniqueId;
+?>
+<div id="<?= $domId; ?>" class="g-recaptcha"></div>
+<script>
+    document.observe("dom:loaded", function() {
+        recaptchaDisableAllButtons('<?= $domId; ?>');
+    });
+
+    var recaptchaCallback = function() {
+        grecaptcha.render('<?= $domId; ?>', {
+            'sitekey' : '<?= $this->getSiteKey(); ?>',
+            'theme' : '<?= $this->getTheme(); ?>',
+            'callback': recaptchaCallbackResponse<?= $uniqueId ?>
+        });
+    };
+
+    function recaptchaCallbackResponse<?= $uniqueId ?>(response)
+    {
+        recaptchaEnableAllButtons('<?= $domId; ?>');
+    }
+</script>
+
+<script>
+    function recaptchaDisableAllButtons(formElement)
+    {
+        var form = $(formElement).up('form');
+        var buttons = form.select('button.button').each(function(button) {
+            button.disabled = true;
+            button.addClassName('disabled');
+        });
+    }
+
+    function recaptchaEnableAllButtons(formElement)
+    {
+        var form = $(formElement).up('form');
+        var buttons = form.select('button.button').each(function(button) {
+            button.disabled = false;
+            button.removeClassName('disabled');
+        });
+    }
+</script>

@@ -12,4 +12,4 @@
  */
 
 ?>
-<script src="https://www.google.com/recaptcha/api.js?hl=<?php echo $this->getLangCode(); ?>" async defer></script>
+<script src="https://www.google.com/recaptcha/api.js?hl=<?= $this->getLangCode(); ?>&onload=recaptchaCallback&render=explicit" async defer></script>

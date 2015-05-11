@@ -24,6 +24,7 @@ class Yireo_Recaptcha_Block_Default extends Yireo_Recaptcha_Block_Abstract
     {
         static $counter = 0;
         $counter++;
+
         return $counter;
     }
 
@@ -118,7 +119,6 @@ class Yireo_Recaptcha_Block_Default extends Yireo_Recaptcha_Block_Abstract
     {
         // Load variables
         $theme = $this->getTheme();
-        $site_key = $this->getSiteKey();
 
         // Output the custom template
         if($theme == 'custom') {
@@ -129,13 +129,7 @@ class Yireo_Recaptcha_Block_Default extends Yireo_Recaptcha_Block_Abstract
         // Helper-method to include the CAPTCHA-library
         Mage::helper('recaptcha')->includeRecaptcha();
 
-        // Load the right scheme
-        $ssl = (Mage::app()->getRequest()->getScheme() == 'https') ? true : false ;
-
-        $html = null;
-        $html .= "<div class=\"g-recaptcha\" data-theme=\"".$theme."\" data-sitekey=\"".$site_key."\"></div>\n"
-        ;
-
-        return $html;
+        $this->setTemplate('recaptcha/default.phtml');
+        return parent::_toHtml();
     }
 }
