@@ -4,10 +4,9 @@
  *
  * @package     Yireo_Recaptcha
  * @author      Yireo (http://www.yireo.com/)
- * @copyright   Copyright (c) 2012 Yireo (http://www.yireo.com/)
+ * @copyright   Copyright (c) 2015 Yireo (http://www.yireo.com/)
  * @license     Open Software License
  *
- * This PHTML-template is used when the reCAPTCHA theme-setting is set to "custom"
  * See http://code.google.com/apis/recaptcha/docs/customization.html for more details
  */
 
@@ -15,6 +14,7 @@ $uniqueId = $this->getUniqueId();
 $domId = 'g-recaptcha-'.$uniqueId;
 ?>
 <div id="<?= $domId; ?>" class="g-recaptcha"></div>
+<div id="<?= $domId; ?>-notice" class="" style="display:none;"><?= $this->__('Please complete this CAPTCHA') ?></div>
 <script src="<?= $this->getSkinUrl('js/recaptcha/functions.js') ?>"></script>
 <script>
     document.observe("dom:loaded", function() {
