@@ -124,7 +124,7 @@
         </recaptcha>
         <web>
             <recaptcha>
-                <enabled>1</enabled>
+                <enabled>0</enabled>
                 <public_key></public_key>
                 <private_key></private_key>
                 <theme>clean</theme>
