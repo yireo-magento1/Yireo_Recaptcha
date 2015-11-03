@@ -13,10 +13,23 @@
  */
 class Yireo_Recaptcha_Helper_Data extends Mage_Core_Helper_Abstract
 {
-    /*
+    /**
+     * Switch to determine whether this extension is enabled or not
+     *
+     * @return bool
+     */
+    public function enabled()
+    {
+        if ((bool)Mage::getStoreConfig('advanced/modules_disable_output/Yireo_Recaptcha')) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * List of blocks and URLs to override
      *
-     * @access public
      * @parameter null
      * @return array
      */
@@ -34,10 +47,9 @@ class Yireo_Recaptcha_Helper_Data extends Mage_Core_Helper_Abstract
         );
     }
 
-    /*
+    /**
      * Load the configured custom URLs as simple array
      *
-     * @access public
      * @parameter null
      * @return array
      */
@@ -47,10 +59,9 @@ class Yireo_Recaptcha_Helper_Data extends Mage_Core_Helper_Abstract
         return $this->getArrayFromString($value);
     }
 
-    /*
+    /**
  * Load the configured skip URLs as simple array
  *
- * @access public
  * @parameter null
  * @return array
  */
@@ -60,10 +71,9 @@ class Yireo_Recaptcha_Helper_Data extends Mage_Core_Helper_Abstract
         return $this->getArrayFromString($value);
     }
 
-    /*
+    /**
  * Convert a CSV string into an array
  *
- * @access public
  * @parameter null
  * @return array
  */
@@ -83,12 +93,11 @@ class Yireo_Recaptcha_Helper_Data extends Mage_Core_Helper_Abstract
         return $return;
     }
 
-    /*
+    /**
      * Include the CAPTCHA library
      *
-     * @access public
      * @parameter null
-     * @return null
+     *
      */
     public function includeRecaptcha()
     {
@@ -110,12 +119,11 @@ class Yireo_Recaptcha_Helper_Data extends Mage_Core_Helper_Abstract
 
     }
 
-    /*
+    /**
      * Include the CAPTCHA library
      *
-     * @access public
      * @parameter null
-     * @return null
+     *
      */
     public function includeLegacyRecaptcha()
     {
@@ -131,10 +139,9 @@ class Yireo_Recaptcha_Helper_Data extends Mage_Core_Helper_Abstract
 
     }
 
-    /*
+    /**
      * Check whether CAPTCHA can be loaded or not
      *
-     * @access public
      * @parameter null
      * @return boolean
      */
@@ -150,10 +157,9 @@ class Yireo_Recaptcha_Helper_Data extends Mage_Core_Helper_Abstract
         return $mode;
     }
 
-    /*
+    /**
      * Check whether CAPTCHA can be loaded or not
      *
-     * @access public
      * @parameter null
      * @return boolean
      */
@@ -193,11 +199,10 @@ class Yireo_Recaptcha_Helper_Data extends Mage_Core_Helper_Abstract
             return;
         }
 
-        $message = '[Yireo_Recaptcha] ' . $message;
         if (!empty($variable)) {
             $message .= ' = ' . $variable;
         }
 
-        Mage::log($message);
+        Mage::log($message, 'yireo_recaptcha.log');
     }
 }

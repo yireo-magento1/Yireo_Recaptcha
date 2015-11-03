@@ -72,7 +72,10 @@ class Yireo_Recaptcha_Model_Observer
             return $this;
         }
 
+        /** @var Yireo_Recaptcha_Helper_Data $mode */
         $mode = Mage::helper('recaptcha')->getMode();
+
+        /** @var Mage_Core_Controller_Request_Http $request */
         $request = $observer->getEvent()->getControllerAction()->getRequest();
         $post = $request->getPost();
 
@@ -230,7 +233,6 @@ class Yireo_Recaptcha_Model_Observer
         // Initialize reCAPTCHA
         Mage::helper('recaptcha')->includeRecaptcha();
 
-        // New mode
         if ($mode == 'new') {
 
             $secretKey = Mage::getStoreConfig('recaptcha/settings/secret_key');
@@ -243,7 +245,6 @@ class Yireo_Recaptcha_Model_Observer
 
             $recaptchaValid = ($response != null && $response->success) ? true : false;
 
-            // Legacy mode
         } elseif ($mode == 'legacy') {
 
             $privateKey = Mage::getStoreConfig('web/recaptcha/private_key');
@@ -268,12 +269,15 @@ class Yireo_Recaptcha_Model_Observer
     {
         $request = Mage::app()->getRequest();
         $refererUrl = $request->getServer('HTTP_REFERER');
+
         if ($url = $request->getParam(Mage_Core_Controller_Varien_Action::PARAM_NAME_REFERER_URL)) {
             $refererUrl = $url;
         }
+
         if ($url = $request->getParam(Mage_Core_Controller_Varien_Action::PARAM_NAME_BASE64_URL)) {
             $refererUrl = Mage::helper('core')->urlDecode($url);
         }
+
         if ($url = $request->getParam(Mage_Core_Controller_Varien_Action::PARAM_NAME_URL_ENCODED)) {
             $refererUrl = Mage::helper('core')->urlDecode($url);
         }

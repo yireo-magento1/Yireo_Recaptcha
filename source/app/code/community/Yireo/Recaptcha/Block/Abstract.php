@@ -42,4 +42,9 @@ class Yireo_Recaptcha_Block_Abstract extends Mage_Core_Block_Template
     
         return $rt;
     }
+
+    public function getBasicMode()
+    {
+        return (bool) Mage::getStoreConfig('recaptcha/settings/basic_mode');
+    }
 }

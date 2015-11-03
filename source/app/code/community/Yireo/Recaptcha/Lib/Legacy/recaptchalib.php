@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * This is a PHP library that handles calling reCAPTCHA.
  *    - Documentation and latest version
  *          http://recaptcha.net/plugins/php/
@@ -209,7 +209,7 @@ function _recaptcha_aes_pad($val) {
 	return str_pad($val, strlen ($val) + $numpad, chr($numpad));
 }
 
-/* Mailhide related code */
+/** Mailhide related code */
 
 function _recaptcha_aes_encrypt($val,$ky) {
 	if (! function_exists ("mcrypt_encrypt")) {
@@ -226,7 +226,7 @@ function _recaptcha_mailhide_urlbase64 ($x) {
 	return strtr(base64_encode ($x), '+/', '-_');
 }
 
-/* gets the reCAPTCHA Mailhide url for a given email, public key and private key */
+/** gets the reCAPTCHA Mailhide url for a given email, public key and private key */
 function recaptcha_mailhide_url($pubkey, $privkey, $email) {
 	if ($pubkey == '' || $pubkey == null || $privkey == "" || $privkey == null) {
 		die ("To use reCAPTCHA Mailhide, you have to sign up for a public and private key, " .
@@ -272,6 +272,3 @@ function recaptcha_mailhide_html($pubkey, $privkey, $email) {
 		"' onclick=\"window.open('" . htmlentities ($url) . "', '', 'toolbar=0,scrollbars=0,location=0,statusbar=0,menubar=0,resizable=0,width=500,height=300'); return false;\" title=\"Reveal this e-mail address\">...</a>@" . htmlentities ($emailparts [1]);
 
 }
-
-
-?>

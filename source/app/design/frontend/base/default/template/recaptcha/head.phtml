@@ -12,4 +12,8 @@
  */
 
 ?>
+<?php if($this->getBasicMode()) : ?>
+<script src='https://www.google.com/recaptcha/api.js'></script>
+<?php else: ?>
 <script src="https://www.google.com/recaptcha/api.js?hl=<?= $this->getLangCode(); ?>&onload=recaptchaCallback&render=explicit" async defer></script>
+<?php endif; ?>

@@ -13,10 +13,9 @@
  */
 class Yireo_Recaptcha_Block_Default extends Yireo_Recaptcha_Block_Abstract
 {
-    /*
+    /**
      * Method to return an unique block ID
-     * 
-     * @access public
+     *
      * @parameter null
      * @return integer
      */
@@ -28,10 +27,9 @@ class Yireo_Recaptcha_Block_Default extends Yireo_Recaptcha_Block_Abstract
         return $counter;
     }
 
-    /*
+    /**
      * Overriden method _toHtml() to add CAPTCHA when needed
-     * 
-     * @access public
+     *
      * @parameter null
      * @return string
      */
@@ -50,10 +48,9 @@ class Yireo_Recaptcha_Block_Default extends Yireo_Recaptcha_Block_Abstract
         }
     }
 
-    /*
+    /**
      * Add the legacy reCaptcha code
-     * 
-     * @access public
+     *
      * @parameter null
      * @return string
      */
@@ -108,10 +105,9 @@ class Yireo_Recaptcha_Block_Default extends Yireo_Recaptcha_Block_Abstract
         return $html;
     }
 
-    /*
+    /**
      * Add the current reCaptcha code
-     * 
-     * @access public
+     *
      * @parameter null
      * @return string
      */

@@ -13,6 +13,9 @@
 $uniqueId = $this->getUniqueId();
 $domId = 'g-recaptcha-'.$uniqueId;
 ?>
+<?php if($this->getBasicMode()) : ?>
+<div class="g-recaptcha" data-sitekey="<?= $this->getSiteKey(); ?>"></div>
+<?php else: ?>
 <div id="<?= $domId; ?>" class="g-recaptcha"></div>
 <div id="<?= $domId; ?>-notice" class="" style="display:none;"><?= $this->__('Please complete this CAPTCHA') ?></div>
 <script src="<?= $this->getSkinUrl('js/recaptcha/functions.js') ?>"></script>
@@ -34,3 +37,4 @@ $domId = 'g-recaptcha-'.$uniqueId;
         recaptchaEnableAllButtons('<?= $domId; ?>');
     }
 </script>
+<?php endif; ?>

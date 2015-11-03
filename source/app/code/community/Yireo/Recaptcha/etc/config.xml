@@ -12,7 +12,7 @@
 <config>
     <modules>
         <Yireo_Recaptcha>
-            <version>0.2.6</version>
+            <version>0.2.8</version>
         </Yireo_Recaptcha>
     </modules>
 
@@ -138,6 +138,7 @@
                 <overwrite_checkout_onepage_login>0</overwrite_checkout_onepage_login>
                 <overwrite_checkout_onepage_billing>0</overwrite_checkout_onepage_billing>
                 <captcha_for_loggedin>0</captcha_for_loggedin>
+                <basic_mode>1</basic_mode>
             </recaptcha>
         </web>
     </default>
