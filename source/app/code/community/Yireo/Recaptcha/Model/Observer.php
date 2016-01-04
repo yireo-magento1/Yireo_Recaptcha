@@ -22,13 +22,10 @@ class Yireo_Recaptcha_Model_Observer
      */
     public function controllerActionLayoutLoadBefore(Varien_Event_Observer $observer)
     {
-        $overwrites = Mage::helper('recaptcha')->getOverwrites();
-        $mode = Mage::helper('recaptcha')->getMode();
+        $overwrites = $this->getHelper()->getOverwrites();
 
         foreach ($overwrites as $layoutUpdate => $postUrl) {
-            if ($mode == 'new' && Mage::getStoreConfig('recaptcha/settings/overwrite_' . $layoutUpdate)) {
-                $observer->getEvent()->getLayout()->getUpdate()->addHandle('recaptcha_' . $layoutUpdate);
-            } elseif ($mode == 'legacy' && Mage::getStoreConfig('web/recaptcha/overwrite_' . $layoutUpdate)) {
+            if (Mage::getStoreConfig('recaptcha/settings/overwrite_' . $layoutUpdate)) {
                 $observer->getEvent()->getLayout()->getUpdate()->addHandle('recaptcha_' . $layoutUpdate);
             }
         }
@@ -68,12 +65,12 @@ class Yireo_Recaptcha_Model_Observer
      */
     public function controllerActionPredispatch(Varien_Event_Observer $observer)
     {
-        if (Mage::helper('recaptcha')->useCaptcha() == false) {
+        /** @var Yireo_Recaptcha_Helper_Data $helper */
+        $helper = $this->getHelper();
+
+        if ($helper->useCaptcha() == false) {
             return $this;
         }
-
-        /** @var Yireo_Recaptcha_Helper_Data $mode */
-        $mode = Mage::helper('recaptcha')->getMode();
 
         /** @var Mage_Core_Controller_Request_Http $request */
         $request = $observer->getEvent()->getControllerAction()->getRequest();
@@ -94,13 +91,13 @@ class Yireo_Recaptcha_Model_Observer
 
             // Return AJAX-errors first
             if ($request->isXmlHttpRequest()) {
-                $result = array('error' => '1', 'message' => Mage::helper('core')->__('Invalid captcha (%s)', $mode));
+                $result = array('error' => '1', 'message' => Mage::helper('core')->__('Invalid captcha'));
                 print Mage::helper('core')->jsonEncode($result);
                 exit;
             }
 
             // Set an error
-            Mage::getSingleton('core/session')->addError(Mage::helper('core')->__('Invalid captcha (%s)', $mode));
+            Mage::getSingleton('core/session')->addError(Mage::helper('core')->__('Invalid captcha'));
 
             // Remember POST-values from login-form
             if (isset($post['login']['username'])) {
@@ -154,11 +151,12 @@ class Yireo_Recaptcha_Model_Observer
     /**
      * Check whether Recaptcha should be applied to the request
      *
+     * @param $request Mage_Core_Controller_Response_Http
+     *
      * @return bool
      */
     public function useRecaptcha($request)
     {
-        $mode = Mage::helper('recaptcha')->getMode();
         $post = $request->getPost();
 
         if ($request->isPost() == false) {
@@ -166,7 +164,7 @@ class Yireo_Recaptcha_Model_Observer
         }
 
         if (Mage::helper('recaptcha/observer')->matchSkipUrls($request->getOriginalPathInfo())) {
-            Mage::helper('recaptcha')->debug('Recaptcha skipped for URL', $request->getOriginalPathInfo());
+            $this->getHelper()->debug('Recaptcha skipped for URL', $request->getOriginalPathInfo());
             return false;
         }
 
@@ -174,22 +172,18 @@ class Yireo_Recaptcha_Model_Observer
         if (is_array($post)) {
             foreach ($post as $name => $value) {
                 if (stristr($name, 'recaptcha')) {
-                    Mage::helper('recaptcha')->debug('Recaptcha enabled because of detected field', $name);
+                    $this->getHelper()->debug('Recaptcha enabled because of detected field', $name);
                     return true;
                 }
             }
         }
 
         // Check for POST URLs configured in the code, and enable checking
-        $overwrites = Mage::helper('recaptcha')->getOverwrites();
+        $overwrites = $this->getHelper()->getOverwrites();
         foreach ($overwrites as $layoutUpdate => $postUrl) {
 
             $refererUrl = $this->_getRefererUrl();
-            if ($mode == 'legacy') {
-                $layoutConfig = Mage::getStoreConfig('web/recaptcha/overwrite_' . $layoutUpdate);
-            } else {
-                $layoutConfig = Mage::getStoreConfig('recaptcha/settings/overwrite_' . $layoutUpdate);
-            }
+            $layoutConfig = Mage::getStoreConfig('recaptcha/settings/overwrite_' . $layoutUpdate);
 
             if ($layoutConfig && stristr($request->getOriginalPathInfo(), $postUrl)) {
 
@@ -197,20 +191,20 @@ class Yireo_Recaptcha_Model_Observer
                     continue;
                 }
 
-                Mage::helper('recaptcha')->debug('Original path info', $request->getOriginalPathInfo());
-                Mage::helper('recaptcha')->debug('Layout update', $layoutUpdate);
-                Mage::helper('recaptcha')->debug('Layout config', $layoutConfig);
-                Mage::helper('recaptcha')->debug('Referer URL', $refererUrl);
-                Mage::helper('recaptcha')->debug('Recaptcha enabled for POST URL', $postUrl);
+                $this->getHelper()->debug('Original path info', $request->getOriginalPathInfo());
+                $this->getHelper()->debug('Layout update', $layoutUpdate);
+                $this->getHelper()->debug('Layout config', $layoutConfig);
+                $this->getHelper()->debug('Referer URL', $refererUrl);
+                $this->getHelper()->debug('Recaptcha enabled for POST URL', $postUrl);
                 return true;
             }
         }
 
         // Check for POST URLs configured in the configuration, and enable checking
-        $custom_urls = Mage::helper('recaptcha')->getCustomUrls();
+        $custom_urls = $this->getHelper()->getCustomUrls();
         foreach ($custom_urls as $custom_url) {
             if (stristr($request->getOriginalPathInfo(), $custom_url)) {
-                Mage::helper('recaptcha')->debug('Recaptcha enabled for custom URL', $custom_url);
+                $this->getHelper()->debug('Recaptcha enabled for custom URL', $custom_url);
                 return true;
             }
         }
@@ -225,36 +219,25 @@ class Yireo_Recaptcha_Model_Observer
      */
     protected function getRecaptchaValid($request)
     {
-        $recaptchaValid = true;
-
-        $mode = Mage::helper('recaptcha')->getMode();
         $remoteIp = $request->getServer('REMOTE_ADDR');
 
         // Initialize reCAPTCHA
-        Mage::helper('recaptcha')->includeRecaptcha();
+        $this->getHelper()->includeRecaptcha();
 
-        if ($mode == 'new') {
+        $secretKey = Mage::getStoreConfig('recaptcha/settings/secret_key');
+        $recaptcha = new \ReCaptcha\ReCaptcha($secretKey);
 
-            $secretKey = Mage::getStoreConfig('recaptcha/settings/secret_key');
-            $recaptcha = new ReCaptcha($secretKey);
+        $response = $recaptcha->verify($request->getPost('g-recaptcha-response'), $remoteIp);
 
-            $response = $recaptcha->verifyResponse(
-                $remoteIp,
-                $request->getPost('g-recaptcha-response')
-            );
+        $recaptchaValid = ($response != null && $response->isSuccess()) ? true : false;
+        if ($recaptchaValid) {
+            return true;
+        }
 
-            $recaptchaValid = ($response != null && $response->success) ? true : false;
-
-        } elseif ($mode == 'legacy') {
-
-            $privateKey = Mage::getStoreConfig('web/recaptcha/private_key');
-            $recaptcha = recaptcha_check_answer($privateKey,
-                $remoteIp,
-                $request->getPost('recaptcha_challenge_field'),
-                $request->getPost('recaptcha_response_field')
-            );
-
-            $recaptchaValid = (bool)$recaptcha->is_valid;
+        if ($response) {
+            foreach ($response->getErrorCodes() as $code) {
+                $this->getHelper()->debug('ReCaptcha error: ' . $code);
+            }
         }
 
         return $recaptchaValid;
@@ -283,5 +266,13 @@ class Yireo_Recaptcha_Model_Observer
         }
 
         return $refererUrl;
+    }
+
+    /**
+     * @return Yireo_Recaptcha_Helper_Data
+     */
+    protected function getHelper()
+    {
+        return Mage::helper('recaptcha');
     }
 }

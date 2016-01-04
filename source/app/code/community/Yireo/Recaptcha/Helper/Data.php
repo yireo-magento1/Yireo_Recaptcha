@@ -55,7 +55,7 @@ class Yireo_Recaptcha_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function getCustomUrls()
     {
-        $value = Mage::getStoreConfig('web/recaptcha/custom_urls');
+        $value = Mage::getStoreConfig('recaptcha/settings/custom_urls');
         return $this->getArrayFromString($value);
     }
 
@@ -67,7 +67,7 @@ class Yireo_Recaptcha_Helper_Data extends Mage_Core_Helper_Abstract
  */
     public function getSkipUrls()
     {
-        $value = Mage::getStoreConfig('web/recaptcha/skip_urls');
+        $value = Mage::getStoreConfig('recaptcha/settings/skip_urls');
         return $this->getArrayFromString($value);
     }
 
@@ -101,60 +101,23 @@ class Yireo_Recaptcha_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function includeRecaptcha()
     {
-        $mode = $this->getMode();
-        if ($mode == 'legacy') {
-            $this->includeLegacyRecaptcha();
+        if (class_exists('\ReCaptcha\Response', false)) {
             return;
         }
 
-        if (class_exists('ReCaptchaResponse', false)) {
+        if (class_exists('\ReCaptcha\ReCaptcha', false)) {
             return;
         }
 
-        if (class_exists('ReCaptcha', false)) {
-            return;
-        }
-
-        require_once BP . '/app/code/community/Yireo/Recaptcha/Lib/recaptchalib.php';
-
-    }
-
-    /**
-     * Include the CAPTCHA library
-     *
-     * @parameter null
-     *
-     */
-    public function includeLegacyRecaptcha()
-    {
-        if (function_exists('_recaptcha_qsencode')) {
-            return;
-        }
-
-        if (function_exists('_recaptcha_http_post')) {
-            return;
-        }
-
-        require_once BP . '/app/code/community/Yireo/Recaptcha/Lib/Legacy/recaptchalib.php';
-
-    }
-
-    /**
-     * Check whether CAPTCHA can be loaded or not
-     *
-     * @parameter null
-     * @return boolean
-     */
-    public function getMode()
-    {
-        $mode = false;
-        if (Mage::getStoreConfig('recaptcha/settings/enabled') == 1) {
-            $mode = 'new';
-        } elseif (Mage::getStoreConfig('web/recaptcha/enabled') == 1) {
-            $mode = 'legacy';
-        }
-
-        return $mode;
+        require_once BP . '/app/code/community/Yireo/Recaptcha/Lib/ReCaptcha/ReCaptcha.php';
+        require_once BP . '/app/code/community/Yireo/Recaptcha/Lib/ReCaptcha/Response.php';
+        require_once BP . '/app/code/community/Yireo/Recaptcha/Lib/ReCaptcha/RequestMethod.php';
+        require_once BP . '/app/code/community/Yireo/Recaptcha/Lib/ReCaptcha/RequestParameters.php';
+        require_once BP . '/app/code/community/Yireo/Recaptcha/Lib/ReCaptcha/RequestMethod/Curl.php';
+        require_once BP . '/app/code/community/Yireo/Recaptcha/Lib/ReCaptcha/RequestMethod/Post.php';
+        require_once BP . '/app/code/community/Yireo/Recaptcha/Lib/ReCaptcha/RequestMethod/CurlPost.php';
+        require_once BP . '/app/code/community/Yireo/Recaptcha/Lib/ReCaptcha/RequestMethod/Socket.php';
+        require_once BP . '/app/code/community/Yireo/Recaptcha/Lib/ReCaptcha/RequestMethod/SocketPost.php';
     }
 
     /**
@@ -165,27 +128,16 @@ class Yireo_Recaptcha_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function useCaptcha()
     {
-        $mode = $this->getMode();
-        if (empty($mode)) {
-            return false;
-        }
-
         if (Mage::getSingleton('customer/session')->isLoggedIn() == true) {
-            if ($mode == 'new' && Mage::getStoreConfig('recaptcha/settings/captcha_for_loggedin') == 0) {
-                return false;
-            } elseif ($mode == 'legacy' && Mage::getStoreConfig('web/recaptcha/captcha_for_loggedin') == 0) {
+            if (Mage::getStoreConfig('recaptcha/settings/captcha_for_loggedin') == 0) {
                 return false;
             }
         }
 
         $siteKey = trim(Mage::getStoreConfig('recaptcha/settings/site_key'));
         $secretKey = trim(Mage::getStoreConfig('recaptcha/settings/secret_key'));
-        $legacyPublicKey = trim(Mage::getStoreConfig('web/recaptcha/public_key'));
-        $legacyPrivateKey = trim(Mage::getStoreConfig('web/recaptcha/private_key'));
 
-        if ($mode == 'new' && (empty($siteKey) || empty($secretKey))) {
-            return false;
-        } elseif ($mode == 'legacy' && (empty($legacyPublicKey) || empty($legacyPrivateKey))) {
+        if (empty($siteKey) || empty($secretKey)) {
             return false;
         }
 
