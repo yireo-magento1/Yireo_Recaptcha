@@ -3,8 +3,8 @@
  * Google Recaptcha for Magento
  *
  * @package     Yireo_Recaptcha
- * @author      Yireo (http://www.yireo.com/)
- * @copyright   Copyright 2015 Yireo (http://www.yireo.com/)
+ * @author      Yireo (https://www.yireo.com/)
+ * @copyright   Copyright 2016 Yireo (https://www.yireo.com/)
  * @license     Open Source License (OSL v3)
  */
 
@@ -14,19 +14,37 @@
 class Yireo_Recaptcha_Model_Observer
 {
     /**
+     * @var Yireo_Recaptcha_Helper_Data
+     */
+    protected $moduleHelper;
+
+    /**
+     * Yireo_Recaptcha_Model_Observer constructor.
+     */
+    public function __construct()
+    {
+        $this->moduleHelper = $this->getModuleHelper();
+    }
+
+    /**
      * Listen to the event controller_action_layout_load_before
+     *
+     * @event controller_action_layout_load_before
      *
      * @parameter Varien_Event_Observer $observer
      *
      * @return $this
      */
-    public function controllerActionLayoutLoadBefore(Varien_Event_Observer $observer)
+    public function applyHandles(Varien_Event_Observer $observer)
     {
-        $overwrites = $this->getHelper()->getOverwrites();
+        $overwrites = $this->moduleHelper->getOverwrites();
 
-        foreach ($overwrites as $layoutUpdate => $postUrl) {
-            if (Mage::getStoreConfig('recaptcha/settings/overwrite_' . $layoutUpdate)) {
-                $observer->getEvent()->getLayout()->getUpdate()->addHandle('recaptcha_' . $layoutUpdate);
+        /** @var Mage_Core_Model_Layout_Update $layoutUpdate */
+        $layoutUpdate = $observer->getEvent()->getLayout()->getUpdate();
+
+        foreach ($overwrites as $layoutUpdateHandle => $postUrl) {
+            if ($this->moduleHelper->getStoreConfig('overwrite_' . $layoutUpdateHandle)) {
+                $layoutUpdate->addHandle('recaptcha_' . $layoutUpdateHandle);
             }
         }
     }
@@ -34,14 +52,15 @@ class Yireo_Recaptcha_Model_Observer
     /**
      * Listen to the event core_block_abstract_to_html_before
      *
+     * @event core_block_abstract_to_html_before
+     *
      * @parameter Varien_Event_Observer $observer
      *
      * @return $this
      */
-    public function coreBlockAbstractToHtmlBefore(Varien_Event_Observer $observer)
+    public function customerAccountForgotpasswordSetEmailValue(Varien_Event_Observer $observer)
     {
         // Get the parameters from the event
-        $transport = $observer->getEvent()->getTransport();
         $block = $observer->getEvent()->getBlock();
         if (empty($block) || !is_object($block)) {
             return $this;
@@ -50,7 +69,7 @@ class Yireo_Recaptcha_Model_Observer
         // Re-insert the email-value for the forgotpassword-block
         $blockClass = 'Mage_Customer_Block_Account_Forgotpassword';
         if ($block instanceof $blockClass) {
-            $block->setEmailValue(Mage::getSingleton('core/session')->getEmailValue());
+            $block->setEmailValue($this->getCoreSession()->getEmailValue());
         }
 
         return $this;
@@ -63,18 +82,14 @@ class Yireo_Recaptcha_Model_Observer
      *
      * @return $this
      */
-    public function controllerActionPredispatch(Varien_Event_Observer $observer)
+    public function checkRecaptchaResponse(Varien_Event_Observer $observer)
     {
-        /** @var Yireo_Recaptcha_Helper_Data $helper */
-        $helper = $this->getHelper();
-
-        if ($helper->useCaptcha() == false) {
+        if ($this->moduleHelper->useCaptcha() == false) {
             return $this;
         }
 
         /** @var Mage_Core_Controller_Request_Http $request */
         $request = $observer->getEvent()->getControllerAction()->getRequest();
-        $post = $request->getPost();
 
         // Check whether to apply Recaptcha
         $useRecaptcha = $this->useRecaptcha($request);
@@ -87,65 +102,91 @@ class Yireo_Recaptcha_Model_Observer
         $recaptchaValid = $this->getRecaptchaValid($request);
 
         // Recaptcha returned false
-        if ($recaptchaValid == false) {
+        if ($recaptchaValid == true) {
+            return $this;
+        }
 
-            // Return AJAX-errors first
-            if ($request->isXmlHttpRequest()) {
-                $result = array('error' => '1', 'message' => Mage::helper('core')->__('Invalid captcha'));
-                print Mage::helper('core')->jsonEncode($result);
-                exit;
-            }
-
-            // Set an error
-            Mage::getSingleton('core/session')->addError(Mage::helper('core')->__('Invalid captcha'));
-
-            // Remember POST-values from login-form
-            if (isset($post['login']['username'])) {
-                Mage::getSingleton('core/session')->setUsername($post['login']['username']);
-            }
-
-            // Remember POST-values from create-form
-            if (stristr($request->getOriginalPathInfo(), 'customer/account/createpost')) {
-                Mage::getSingleton('core/session')->setCustomerFormData($post);
-            }
-
-            // Remember POST-values from forgotpassword-form
-            if (stristr($request->getOriginalPathInfo(), 'customer/account/forgotpassword') && isset($post['email'])) {
-                Mage::getSingleton('core/session')->setEmailValue($post['email']);
-            }
-
-            // Remember POST-values from contact-form
-            // @todo: does not work
-            if (stristr($request->getOriginalPathInfo(), 'contact')) {
-                Mage::getSingleton('core/session')->setContactFormData($post);
-            }
-
-            // Remember POST-values from sendfriend-form
-            // @todo: does not work
-            if (stristr($request->getOriginalPathInfo(), 'sendfriend')) {
-                Mage::getSingleton('core/session')->setSendfriendFormData($post);
-            }
-
-            // Remember POST-values from review-form
-            if (stristr($request->getOriginalPathInfo(), 'review')) {
-                Mage::getSingleton('review/session')->setFormData($post);
-            }
-
-            // Determine the redirect URL
-            $redirect_url = Mage::helper('core/http')->getHttpReferer();
-            if (empty($redirect_url)) {
-                $redirect_url = $request->getRequestUri();
-            }
-
-            // Redirect and exit
-            $response = Mage::app()->getFrontController()->getResponse();
-            $response->setRedirect($redirect_url);
-            $response->sendResponse();
-
+        // Return AJAX-errors first
+        if ($request->isXmlHttpRequest()) {
+            $result = array('error' => '1', 'message' => Mage::helper('core')->__('Invalid captcha'));
+            print Mage::helper('core')->jsonEncode($result);
             exit;
         }
 
-        return $this;
+        // Set an error
+        $this->getCoreSession()->addError(Mage::helper('core')->__('Invalid captcha'));
+
+        // Set the original data in the session
+        $this->setOriginalSessionInformation($request);
+
+        // Determine the redirect URL
+        $redirectUrl = Mage::helper('core/http')->getHttpReferer();
+        if (empty($redirectUrl)) {
+            $redirectUrl = $request->getRequestUri();
+        }
+
+        $this->redirectToUrl($redirectUrl);
+    }
+
+    /**
+     * @param $redirectUrl
+     */
+    protected function redirectToUrl($redirectUrl)
+    {
+        // Redirect and exit
+        $response = Mage::app()->getFrontController()->getResponse();
+        $response->setRedirect($redirectUrl);
+        $response->sendResponse();
+        exit;
+    }
+
+    /**
+     * @param $request Mage_Core_Controller_Request_Http
+     */
+    protected function setOriginalSessionInformation($request)
+    {
+        $post = $request->getPost();
+
+        // Remember POST-values from login-form
+        if (isset($post['login']['username'])) {
+            $this->getCoreSession()->setUsername($post['login']['username']);
+        }
+
+        // Remember POST-values from create-form
+        if (stristr($request->getOriginalPathInfo(), 'customer/account/createpost')) {
+            $this->getCoreSession()->setCustomerFormData($post);
+        }
+
+        // Remember POST-values from forgotpassword-form
+        if (stristr($request->getOriginalPathInfo(), 'customer/account/forgotpassword') && isset($post['email'])) {
+            $this->getCoreSession()->setEmailValue($post['email']);
+        }
+
+        // Remember POST-values from contact-form
+        // @todo: does not work
+        if (stristr($request->getOriginalPathInfo(), 'contact')) {
+            $this->getCoreSession()->setContactFormData($post);
+        }
+
+        // Remember POST-values from sendfriend-form
+        // @todo: does not work
+        if (stristr($request->getOriginalPathInfo(), 'sendfriend')) {
+            $this->getCoreSession()->setSendfriendFormData($post);
+        }
+
+        // Remember POST-values from review-form
+        if (stristr($request->getOriginalPathInfo(), 'review')) {
+            Mage::getSingleton('review/session')->setFormData($post);
+        }
+    }
+
+    /**
+     *
+     * @return Mage_Core_Model_Session
+     */
+    protected function getCoreSession()
+    {
+        return Mage::getSingleton('core/session');
     }
 
     /**
@@ -155,7 +196,7 @@ class Yireo_Recaptcha_Model_Observer
      *
      * @return bool
      */
-    public function useRecaptcha($request)
+    protected function useRecaptcha($request)
     {
         $post = $request->getPost();
 
@@ -164,7 +205,7 @@ class Yireo_Recaptcha_Model_Observer
         }
 
         if (Mage::helper('recaptcha/observer')->matchSkipUrls($request->getOriginalPathInfo())) {
-            $this->getHelper()->debug('Recaptcha skipped for URL', $request->getOriginalPathInfo());
+            $this->moduleHelper->debug('Recaptcha skipped for URL', $request->getOriginalPathInfo());
             return false;
         }
 
@@ -172,18 +213,18 @@ class Yireo_Recaptcha_Model_Observer
         if (is_array($post)) {
             foreach ($post as $name => $value) {
                 if (stristr($name, 'recaptcha')) {
-                    $this->getHelper()->debug('Recaptcha enabled because of detected field', $name);
+                    $this->moduleHelper->debug('Recaptcha enabled because of detected field', $name);
                     return true;
                 }
             }
         }
 
         // Check for POST URLs configured in the code, and enable checking
-        $overwrites = $this->getHelper()->getOverwrites();
+        $overwrites = $this->moduleHelper->getOverwrites();
         foreach ($overwrites as $layoutUpdate => $postUrl) {
 
-            $refererUrl = $this->_getRefererUrl();
-            $layoutConfig = Mage::getStoreConfig('recaptcha/settings/overwrite_' . $layoutUpdate);
+            $refererUrl = $this->getRefererUrl();
+            $layoutConfig = $this->moduleHelper->getStoreConfig('overwrite_' . $layoutUpdate);
 
             if ($layoutConfig && stristr($request->getOriginalPathInfo(), $postUrl)) {
 
@@ -191,20 +232,20 @@ class Yireo_Recaptcha_Model_Observer
                     continue;
                 }
 
-                $this->getHelper()->debug('Original path info', $request->getOriginalPathInfo());
-                $this->getHelper()->debug('Layout update', $layoutUpdate);
-                $this->getHelper()->debug('Layout config', $layoutConfig);
-                $this->getHelper()->debug('Referer URL', $refererUrl);
-                $this->getHelper()->debug('Recaptcha enabled for POST URL', $postUrl);
+                $this->moduleHelper->debug('Original path info', $request->getOriginalPathInfo());
+                $this->moduleHelper->debug('Layout update', $layoutUpdate);
+                $this->moduleHelper->debug('Layout config', $layoutConfig);
+                $this->moduleHelper->debug('Referer URL', $refererUrl);
+                $this->moduleHelper->debug('Recaptcha enabled for POST URL', $postUrl);
                 return true;
             }
         }
 
         // Check for POST URLs configured in the configuration, and enable checking
-        $custom_urls = $this->getHelper()->getCustomUrls();
+        $custom_urls = $this->moduleHelper->getCustomUrls();
         foreach ($custom_urls as $custom_url) {
             if (stristr($request->getOriginalPathInfo(), $custom_url)) {
-                $this->getHelper()->debug('Recaptcha enabled for custom URL', $custom_url);
+                $this->moduleHelper->debug('Recaptcha enabled for custom URL', $custom_url);
                 return true;
             }
         }
@@ -222,7 +263,7 @@ class Yireo_Recaptcha_Model_Observer
         $remoteIp = $request->getServer('REMOTE_ADDR');
 
         // Initialize reCAPTCHA
-        $this->getHelper()->includeRecaptcha();
+        $this->moduleHelper->includeRecaptcha();
 
         $secretKey = Mage::getStoreConfig('recaptcha/settings/secret_key');
         $recaptcha = new \ReCaptcha\ReCaptcha($secretKey);
@@ -236,7 +277,7 @@ class Yireo_Recaptcha_Model_Observer
 
         if ($response) {
             foreach ($response->getErrorCodes() as $code) {
-                $this->getHelper()->debug('ReCaptcha error: ' . $code);
+                $this->moduleHelper->debug('ReCaptcha error: ' . $code);
             }
         }
 
@@ -248,7 +289,7 @@ class Yireo_Recaptcha_Model_Observer
      *
      * @return mixed|string
      */
-    protected function _getRefererUrl()
+    protected function getRefererUrl()
     {
         $request = Mage::app()->getRequest();
         $refererUrl = $request->getServer('HTTP_REFERER');
@@ -271,7 +312,7 @@ class Yireo_Recaptcha_Model_Observer
     /**
      * @return Yireo_Recaptcha_Helper_Data
      */
-    protected function getHelper()
+    protected function getModuleHelper()
     {
         return Mage::helper('recaptcha');
     }

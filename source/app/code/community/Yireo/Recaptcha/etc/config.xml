@@ -5,14 +5,14 @@
  *
  * @package     Yireo_Recaptcha
  * @author      Yireo (https://www.yireo.com/)
- * @copyright   Copyright 2015 Yireo (http://www.yireo.com/)
+ * @copyright   Copyright 2016 Yireo (https://www.yireo.com/)
  * @license     Open Source License (OSL v3) (OSL)
  */
 -->
 <config>
     <modules>
         <Yireo_Recaptcha>
-            <version>0.2.9</version>
+            <version>0.3.1</version>
         </Yireo_Recaptcha>
     </modules>
 
@@ -40,27 +40,27 @@
         <events>
             <controller_action_predispatch>
                 <observers>
-                    <recaptcha_controller_action_predispatch>
+                    <recaptcha_check_recaptcha_response>
                         <class>recaptcha/observer</class>
-                        <method>controllerActionPredispatch</method>
-                    </recaptcha_controller_action_predispatch>
+                        <method>checkRecaptchaResponse</method>
+                    </recaptcha_check_recaptcha_response>
                 </observers>
             </controller_action_predispatch>
             <controller_action_layout_load_before>
                 <observers>
-                    <recaptcha_controller_action_layout_load_before>
+                    <recaptcha_apply_handles>
                         <class>recaptcha/observer</class>
-                        <method>controllerActionLayoutLoadBefore</method>
-                    </recaptcha_controller_action_layout_load_before>
+                        <method>applyHandles</method>
+                    </recaptcha_apply_handles>
                 </observers>
             </controller_action_layout_load_before>
             <core_block_abstract_to_html_before>
                 <observers>
-                    <recaptcha_core_block_abstract_to_html_before>
+                    <recaptcha_customer_account_forgotpassword_set_email_value>
                         <type>singleton</type>
                         <class>Yireo_Recaptcha_Model_Observer</class>
-                        <method>coreBlockAbstractToHtmlBefore</method>
-                    </recaptcha_core_block_abstract_to_html_before>
+                        <method>customerAccountForgotpasswordSetEmailValue</method>
+                    </recaptcha_customer_account_forgotpassword_set_email_value>
                 </observers>
             </core_block_abstract_to_html_before>
         </events>

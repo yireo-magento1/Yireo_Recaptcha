@@ -3,8 +3,8 @@
  * Google Recaptcha for Magento
  *
  * @package     Yireo_Recaptcha
- * @author      Yireo (http://www.yireo.com/)
- * @copyright   Copyright 2015 Yireo (http://www.yireo.com/)
+ * @author      Yireo (https://www.yireo.com/)
+ * @copyright   Copyright 2016 Yireo (https://www.yireo.com/)
  * @license     Open Source License (OSL v3)
  */
 
@@ -13,23 +13,29 @@
  */
 class Yireo_Recaptcha_Block_Abstract extends Mage_Core_Block_Template
 {
+    /**
+     * @var Yireo_Recaptcha_Helper_Data
+     */
+    protected $moduleHelper;
+
+    /**
+     * @return void
+     */
     public function _construct()
     {
+        $this->moduleHelper = $this->getModuleHelper();
+
         // If CAPTCHA is not enabled, return nothing
-        if ($this->getModuleHelper()->useCaptcha() == false) {
-            return null;
+        if ($this->moduleHelper->useCaptcha() == false) {
+            return;
         }
 
-        $rt = parent::_construct();
+        parent::_construct();
 
-        $this->setSiteKey(trim(Mage::getStoreConfig('recaptcha/settings/site_key')));
-        $this->setSecretKey(trim(Mage::getStoreConfig('recaptcha/settings/secret_key')));
-        $this->setTheme(Mage::getStoreConfig('recaptcha/settings/theme'));
-
-        $langCode = preg_replace('/_([a-zA-Z0-9]+)$/', '', Mage::app()->getLocale()->getLocaleCode());
-        $this->setLangCode($langCode);
-
-        return $rt;
+        $this->setSiteKey(trim($this->getConfig('site_key')));
+        $this->setSecretKey(trim($this->getConfig('secret_key')));
+        $this->setTheme($this->getConfig('theme'));
+        $this->setLangCode($this->getLanguageCode());
     }
 
     /**
@@ -37,7 +43,26 @@ class Yireo_Recaptcha_Block_Abstract extends Mage_Core_Block_Template
      */
     public function getBasicMode()
     {
-        return (bool)Mage::getStoreConfig('recaptcha/settings/basic_mode');
+        return (bool)$this->getConfig('basic_mode');
+    }
+
+    /**
+     * @return string
+     */
+    protected function getLanguageCode()
+    {
+        $localeCode = Mage::app()->getLocale()->getLocaleCode();
+        return preg_replace('/_([a-zA-Z0-9]+)$/', '', $localeCode);
+    }
+
+    /**
+     * @param $value
+     *
+     * @return mixed
+     */
+    protected function getConfig($value)
+    {
+        return Mage::getStoreConfig('recaptcha/settings/' . $value);
     }
 
     /**

@@ -3,8 +3,8 @@
  * Google Recaptcha for Magento
  *
  * @package     Yireo_Recaptcha
- * @author      Yireo (http://www.yireo.com/)
- * @copyright   Copyright 2015 Yireo (http://www.yireo.com/)
+ * @author      Yireo (https://www.yireo.com/)
+ * @copyright   Copyright 2016 Yireo (https://www.yireo.com/)
  * @license     Open Source License (OSL v3)
  */
 
@@ -20,7 +20,11 @@ class Yireo_Recaptcha_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function enabled()
     {
-        if ((bool)Mage::getStoreConfig('advanced/modules_disable_output/Yireo_Recaptcha')) {
+        if ((bool)$this->getStoreConfig('advanced/modules_disable_output/Yireo_Recaptcha', false)) {
+            return false;
+        }
+
+        if ((bool)$this->getStoreConfig('enabled') === false) {
             return false;
         }
 
@@ -31,6 +35,7 @@ class Yireo_Recaptcha_Helper_Data extends Mage_Core_Helper_Abstract
      * List of blocks and URLs to override
      *
      * @parameter null
+     *
      * @return array
      */
     public function getOverwrites()
@@ -51,32 +56,35 @@ class Yireo_Recaptcha_Helper_Data extends Mage_Core_Helper_Abstract
      * Load the configured custom URLs as simple array
      *
      * @parameter null
+     *
      * @return array
      */
     public function getCustomUrls()
     {
-        $value = Mage::getStoreConfig('recaptcha/settings/custom_urls');
+        $value = $this->getStoreConfig('custom_urls');
         return $this->getArrayFromString($value);
     }
 
     /**
- * Load the configured skip URLs as simple array
- *
- * @parameter null
- * @return array
- */
+     * Load the configured skip URLs as simple array
+     *
+     * @parameter null
+     *
+     * @return array
+     */
     public function getSkipUrls()
     {
-        $value = Mage::getStoreConfig('recaptcha/settings/skip_urls');
+        $value = $this->getStoreConfig('skip_urls');
         return $this->getArrayFromString($value);
     }
 
     /**
- * Convert a CSV string into an array
- *
- * @parameter null
- * @return array
- */
+     * Convert a CSV string into an array
+     *
+     * @parameter null
+     *
+     * @return array
+     */
     public function getArrayFromString($value)
     {
         $return = array();
@@ -124,18 +132,35 @@ class Yireo_Recaptcha_Helper_Data extends Mage_Core_Helper_Abstract
      * Check whether CAPTCHA can be loaded or not
      *
      * @parameter null
+     *
      * @return boolean
      */
     public function useCaptcha()
     {
-        if (Mage::getSingleton('customer/session')->isLoggedIn() == true) {
-            if (Mage::getStoreConfig('recaptcha/settings/captcha_for_loggedin') == 0) {
+        if ($this->enabled() === false) {
+            return false;
+        }
+
+        if (Mage::getSingleton('customer/session')->isLoggedIn() === true) {
+            if ($this->getStoreConfig('captcha_for_loggedin') === 0) {
                 return false;
             }
         }
 
-        $siteKey = trim(Mage::getStoreConfig('recaptcha/settings/site_key'));
-        $secretKey = trim(Mage::getStoreConfig('recaptcha/settings/secret_key'));
+        if ($this->isValidKeys() === false) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isValidKeys()
+    {
+        $siteKey = trim($this->getStoreConfig('site_key'));
+        $secretKey = trim($this->getStoreConfig('secret_key'));
 
         if (empty($siteKey) || empty($secretKey)) {
             return false;
@@ -144,9 +169,13 @@ class Yireo_Recaptcha_Helper_Data extends Mage_Core_Helper_Abstract
         return true;
     }
 
+    /**
+     * @param $message
+     * @param null $variable
+     */
     public function debug($message, $variable = null)
     {
-        $debugging = Mage::getStoreConfig('recaptcha/settings/debugging');
+        $debugging = $this->getStoreConfig('debugging');
         if ($debugging == false) {
             return;
         }
@@ -156,5 +185,19 @@ class Yireo_Recaptcha_Helper_Data extends Mage_Core_Helper_Abstract
         }
 
         Mage::log($message, 'yireo_recaptcha.log');
+    }
+
+    /**
+     * @param $value
+     *
+     * @return mixed
+     */
+    public function getStoreConfig($value, $prefix = true)
+    {
+        if ($prefix) {
+            $value = 'recaptcha/settings/' . $value;
+        }
+
+        return Mage::getStoreConfig($value);
     }
 }

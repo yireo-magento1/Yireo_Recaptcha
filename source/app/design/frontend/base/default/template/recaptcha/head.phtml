@@ -3,8 +3,8 @@
  * Google Recaptcha for Magento 
  *
  * @package     Yireo_Recaptcha
- * @author      Yireo (http://www.yireo.com/)
- * @copyright   Copyright (c) 2012 Yireo (http://www.yireo.com/)
+ * @author      Yireo (https://www.yireo.com/)
+ * @copyright   Copyright 2016 Yireo (https://www.yireo.com/)
  * @license     Open Software License
  *
  * This PHTML-template is used when the reCAPTCHA theme-setting is set to "custom"
@@ -13,7 +13,5 @@
 
 ?>
 <?php if($this->getBasicMode()) : ?>
-<script src='https://www.google.com/recaptcha/api.js'></script>
-<?php else: ?>
-<script src="https://www.google.com/recaptcha/api.js?hl=<?= $this->getLangCode(); ?>&onload=recaptchaCallback&render=explicit" async defer></script>
+<script type="text/javascript" src="https://www.google.com/recaptcha/api.js?hl=<?= $this->getLangCode(); ?>" async defer></script>
 <?php endif; ?>
