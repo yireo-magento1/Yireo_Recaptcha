@@ -1,0 +1,18 @@
+<?php
+/**
+ * Google Recaptcha for Magento
+ *
+ * @package     Yireo_Recaptcha
+ * @author      Yireo (https://www.yireo.com/)
+ * @copyright   Copyright 2016 Yireo (https://www.yireo.com/)
+ * @license     Open Software License
+ *
+ * This PHTML-template is used when the reCAPTCHA theme-setting is set to "custom"
+ * See http://code.google.com/apis/recaptcha/docs/customization.html for more details
+ */
+
+// @note: This template is currently not used. Code is stored in "default.phtml" instead because that allows for multiple calls on some page.
+?>
+<?php if($this->getBasicMode() == false) : ?>
+    <script type="text/javascript" src="https://www.google.com/recaptcha/api.js?onload=recaptchaCallback&render=explicit&hl=<?= $this->getLangCode(); ?>" async defer></script>
+<?php endif; ?>
