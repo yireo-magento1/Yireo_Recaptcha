@@ -1,0 +1,6 @@
+# Modman file
+source/app/code/community/Yireo/Recaptcha/                          app/code/community/Yireo/Recaptcha
+source/app/design/frontend/base/default/layout/recaptcha.xml        app/design/frontend/base/default/layout/recaptcha.xml
+source/app/design/frontend/base/default/template/recaptcha          app/design/frontend/base/default/template/recaptcha
+source/app/etc/modules/Yireo_Recaptcha.xml                          app/etc/modules/Yireo_Recaptcha.xml
+source/skin/frontend/base/default/js/recaptcha                      skin/frontend/base/default/js/recaptcha
