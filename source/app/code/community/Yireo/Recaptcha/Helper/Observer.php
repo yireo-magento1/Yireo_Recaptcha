@@ -11,7 +11,7 @@
 /**
  * Observer helper
  */
-class Yireo_Recaptcha_Helper_Observer extends Mage_Core_Helper_Abstract
+class Yireo_Recaptcha_Helper_Observer
 {
     /**
      * @param $url

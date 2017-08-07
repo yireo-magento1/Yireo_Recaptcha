@@ -15,85 +15,69 @@
     </default>
 
     <recaptcha_customer_form_login>
-        <reference name="head">
-            <block type="recaptcha/head" name="recaptcha_head" />
-        </reference>
+        <update name="recaptcha_load"/>
         <reference name="customer_form_login">
             <action method="setTemplate"><string>recaptcha/customer/form/login.phtml</string></action>
         </reference>
-        <remove name="captcha" />
     </recaptcha_customer_form_login>
 
     <recaptcha_customer_form_register>
-        <reference name="head">
-            <block type="recaptcha/head" name="recaptcha_head" />
-        </reference>
+        <update name="recaptcha_load"/>
         <reference name="customer_form_register">
             <action method="setTemplate"><string>recaptcha/customer/form/register.phtml</string></action>
         </reference>
-        <remove name="captcha" />
     </recaptcha_customer_form_register>
 
     <recaptcha_customer_form_forgotpassword>
-        <reference name="head">
-            <block type="recaptcha/head" name="recaptcha_head" />
-        </reference>
+        <update name="recaptcha_load"/>
         <reference name="forgotPassword">
             <action method="setTemplate"><string>recaptcha/customer/form/forgotpassword.phtml</string></action>
         </reference>
-        <remove name="captcha" />
     </recaptcha_customer_form_forgotpassword>
 
     <recaptcha_contacts_form>
-        <reference name="head">
-            <block type="recaptcha/head" name="recaptcha_head" />
-        </reference>
+        <update name="recaptcha_load"/>
         <reference name="contactForm">
             <action method="setTemplate"><string>recaptcha/contacts/form.phtml</string></action>
         </reference>
-        <remove name="captcha" />
     </recaptcha_contacts_form>
 
     <recaptcha_sendfriend_send>
-        <reference name="head">
-            <block type="recaptcha/head" name="recaptcha_head" />
-        </reference>
+        <update name="recaptcha_load"/>
         <reference name="sendfriend.send">
             <action method="setTemplate"><string>recaptcha/sendfriend/send.phtml</string></action>
         </reference>
-        <remove name="captcha" />
     </recaptcha_sendfriend_send>
 
     <recaptcha_review_form>
-        <reference name="head">
-            <block type="recaptcha/head" name="recaptcha_head" />
-        </reference>
+        <update name="recaptcha_load"/>
         <reference name="product.review.form">
             <action method="setTemplate"><string>recaptcha/review/form.phtml</string></action>
         </reference>
-        <remove name="captcha" />
     </recaptcha_review_form>
 
     <recaptcha_checkout_onepage_login>
-        <reference name="head">
-            <block type="recaptcha/head" name="recaptcha_head" />
-        </reference>
+        <update name="recaptcha_load"/>
         <reference name="checkout.onepage.login">
             <block type="core/text_list" name="form.additional.info">
                 <block name="recaptcha" type="recaptcha/default" />
             </block>
         </reference>
-        <remove name="captcha" />
     </recaptcha_checkout_onepage_login>
 
     <recaptcha_checkout_onepage_billing>
-        <reference name="head">
-            <block type="recaptcha/head" name="recaptcha_head" />
-        </reference>
+        <update name="recaptcha_load"/>
         <reference name="checkout.onepage.billing">
             <block type="core/text_list" name="form.additional.info">
                 <block name="recaptcha" type="recaptcha/default" />
             </block>
         </reference>
     </recaptcha_checkout_onepage_billing>
+
+    <recaptcha_load>
+        <reference name="head">
+            <block type="recaptcha/script" name="recaptcha_script" />
+        </reference>
+        <remove name="captcha" />
+    </recaptcha_load>
 </layout>

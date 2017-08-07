@@ -2,7 +2,7 @@
 /**
  * This is a PHP library that handles calling reCAPTCHA.
  *
- * @copyright Copyright 2017, Google Inc.
+ * @copyright Copyright (c) 2015, Google Inc.
  * @link      http://www.google.com/recaptcha
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy

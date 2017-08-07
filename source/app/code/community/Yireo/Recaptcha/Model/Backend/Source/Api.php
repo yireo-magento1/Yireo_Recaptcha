@@ -8,6 +8,9 @@
  * @license     Open Source License (OSL v3)
  */
 
+/**
+ * Class Yireo_Recaptcha_Model_Backend_Source_Api
+ */
 class Yireo_Recaptcha_Model_Backend_Source_Api
 {
     /**

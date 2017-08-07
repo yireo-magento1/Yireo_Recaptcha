@@ -11,8 +11,13 @@
 /**
  * General helper
  */
-class Yireo_Recaptcha_Block_Default extends Yireo_Recaptcha_Block_Abstract
+class Yireo_Recaptcha_Block_Default extends Yireo_Recaptcha_Block_Generic
 {
+    /**
+     * @var string
+     */
+    protected $_template = 'recaptcha/default.phtml';
+
     /**
      * Method to return an unique block ID
      *
@@ -33,9 +38,8 @@ class Yireo_Recaptcha_Block_Default extends Yireo_Recaptcha_Block_Abstract
      */
     public function _toHtml()
     {
-        // If CAPTCHA is not enabled, return nothing
-        if ($this->moduleHelper->useCaptcha() == false) {
-            return null;
+        if ($this->moduleHelper->useCaptcha() === false) {
+            return '';
         }
 
         return $this->addHtml();
@@ -48,19 +52,14 @@ class Yireo_Recaptcha_Block_Default extends Yireo_Recaptcha_Block_Abstract
      */
     public function addHtml()
     {
-        // Load variables
-        $theme = $this->getTheme();
+        $theme = $this->getData('theme');
 
-        // Output the custom template
-        if ($theme == 'custom') {
+        if ($theme === 'custom') {
             $this->setTemplate('recaptcha/custom.phtml');
             return parent::_toHtml();
         }
 
-        // Helper-method to include the CAPTCHA-library
         $this->moduleHelper->includeRecaptcha();
-
-        $this->setTemplate('recaptcha/default.phtml');
         return parent::_toHtml();
     }
 }

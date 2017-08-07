@@ -2,7 +2,7 @@
 /**
  * This is a PHP library that handles calling reCAPTCHA.
  *
- * @copyright Copyright 2017, Google Inc.
+ * @copyright Copyright (c) 2015, Google Inc.
  * @link      http://www.google.com/recaptcha
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -58,7 +58,7 @@ class Post implements RequestMethod
                 'header' => "Content-type: application/x-www-form-urlencoded\r\n",
                 'method' => 'POST',
                 'content' => $params->toQueryString(),
-                // Force the peer to validate (not needed in 5.6.0+, but still works
+                // Force the peer to validate (not needed in 5.6.0+, but still works)
                 'verify_peer' => true,
                 // Force the peer validation to use www.google.com
                 $peer_key => 'www.google.com',

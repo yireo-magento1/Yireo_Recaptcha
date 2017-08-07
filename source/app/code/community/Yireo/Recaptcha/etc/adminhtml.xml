@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Google reCaptcha extension for Magento
+ *
+ * @package     Yireo_Recaptcha
+ * @author      Yireo (https://www.yireo.com/)
+ * @copyright   Copyright 2017 Yireo (https://www.yireo.com/)
+ * @license     Open Source License (OSL v3) (OSL)
+ */
+-->
+<config>
+    <translate>
+        <modules>
+            <Yireo_Recaptcha>
+                <files>
+                    <default>Yireo_Recaptcha.csv</default>
+                </files>
+            </Yireo_Recaptcha>
+        </modules>
+    </translate>
+
+    <acl>
+        <resources>
+            <admin>
+                <children>
+                    <system>
+                        <children>
+                            <config>
+                                <children>
+                                    <recaptcha translate="title" module="recaptcha">
+                                        <title>Recaptcha Section</title>
+                                    </recaptcha>
+                                </children>
+                            </config>
+                        </children>
+                    </system>
+                </children>
+            </admin>
+        </resources>
+    </acl>
+</config>

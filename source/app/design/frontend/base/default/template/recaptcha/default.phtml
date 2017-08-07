@@ -4,7 +4,7 @@
  *
  * @package     Yireo_Recaptcha
  * @author      Yireo (https://www.yireo.com/)
- * @copyright   Copyright 2016 Yireo (https://www.yireo.com/)
+ * @copyright   Copyright 2017 Yireo (https://www.yireo.com/)
  * @license     Open Software License
  *
  * See http://code.google.com/apis/recaptcha/docs/customization.html for more details
@@ -30,12 +30,12 @@ $domId = 'g-recaptcha-'.$uniqueId;
     };
 
     document.observe("dom:loaded", function() {
-        recaptchaDisableAllButtons('<?= $domId; ?>');
+        Recaptcha.disableAllButtons('<?= $domId; ?>');
     });
 
     function recaptchaCallbackResponse<?= $uniqueId ?>(response)
     {
-        recaptchaEnableAllButtons('<?= $domId; ?>');
+        Recaptcha.enableAllButtons('<?= $domId; ?>');
     }
 </script>
 <?php endif; ?>

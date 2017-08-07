@@ -12,7 +12,7 @@
 <config>
     <modules>
         <Yireo_Recaptcha>
-            <version>0.3.2</version>
+            <version>0.3.3</version>
         </Yireo_Recaptcha>
     </modules>
 
@@ -41,16 +41,16 @@
             <controller_action_predispatch>
                 <observers>
                     <recaptcha_check_recaptcha_response>
-                        <class>recaptcha/observer</class>
-                        <method>checkRecaptchaResponse</method>
+                        <class>Yireo_Recaptcha_Observer_CheckRecaptchaResponse</class>
+                        <method>execute</method>
                     </recaptcha_check_recaptcha_response>
                 </observers>
             </controller_action_predispatch>
             <controller_action_layout_load_before>
                 <observers>
                     <recaptcha_apply_handles>
-                        <class>recaptcha/observer</class>
-                        <method>applyHandles</method>
+                        <class>Yireo_Recaptcha_Observer_ApplyHandles</class>
+                        <method>execute</method>
                     </recaptcha_apply_handles>
                 </observers>
             </controller_action_layout_load_before>
@@ -58,8 +58,8 @@
                 <observers>
                     <recaptcha_customer_account_forgotpassword_set_email_value>
                         <type>singleton</type>
-                        <class>Yireo_Recaptcha_Model_Observer</class>
-                        <method>customerAccountForgotpasswordSetEmailValue</method>
+                        <class>Yireo_Recaptcha_Observer_CustomerAccountForgotPasswordSetEmailValue</class>
+                        <method>execute</method>
                     </recaptcha_customer_account_forgotpassword_set_email_value>
                 </observers>
             </core_block_abstract_to_html_before>
@@ -73,37 +73,6 @@
             </updates>
         </layout>
     </frontend>
-
-    <adminhtml>
-        <translate>
-            <modules>
-                <Yireo_Recaptcha>
-                    <files>
-                        <default>Yireo_Recaptcha.csv</default>
-                    </files>
-                </Yireo_Recaptcha>
-            </modules>
-        </translate>
-        <acl>
-            <resources>
-                <admin>
-                    <children>
-                        <system>
-                            <children>
-                                <config>
-                                    <children>
-                                        <recaptcha translate="title" module="recaptcha">
-                                            <title>Recaptcha Section</title>
-                                        </recaptcha>
-                                    </children>
-                                </config>
-                            </children>
-                        </system>
-                    </children>
-                </admin>
-            </resources>
-        </acl>
-    </adminhtml>
 
     <default>
         <recaptcha>

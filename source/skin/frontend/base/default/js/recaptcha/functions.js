@@ -7,74 +7,124 @@
  * @license     Open Source License (OSL)
  */
 
-function recaptchaDisableAllButtons(formElement) {
-    var form = $(formElement).up('form');
-    if (form == undefined) {
-        return false;
-    }
+var Recaptcha;
 
-    if (form.id == 'login-form' && loginForm !== undefined) {
-        buttons = $('checkout-step-login').select('button');
-        if (buttons) {
-            buttons.forEach(function (button) {
-                recaptchaDisableButton(button);
+(function (factory) {
+    if (typeof define === 'function' && define.amd) {
+        define(['prototype'], $);
+    } else {
+        Recaptcha = factory($);
+    }
+})(function ($) {
+
+    return {
+        disableAllButtons: function (formElement) {
+            var form = $(formElement).up('form');
+
+            if (!form) {
+                return false;
+            }
+
+            this.disableLoginButton(form);
+
+            var that = this;
+            var buttons = form.select('button.button').each(function (button) {
+                that.disableButton(button);
             });
-        }
 
-        var registerButton = $('onepage-guest-register-button');
-        if (registerButton) {
-            recaptchaDisableButton(registerButton, true);
-        }
-    }
+            return true;
+        },
 
-    var buttons = form.select('button.button').each(function (button) {
-        recaptchaDisableButton(button);
-    });
+        disableLoginButton: function (form) {
+            if (this.isLoginForm(form) == false) {
+                return false;
+            }
 
-    return true;
-}
+            buttons = $('checkout-step-login').select('button');
+            if (buttons) {
+                var that = this;
+                buttons.forEach(function (button) {
+                    that.disableButton(button);
+                });
+            }
 
-function recaptchaDisableButton(button, allButtons) {
-    if ((allButtons == false || allButtons == undefined) && button.type !== 'submit') {
-        return false;
-    }
+            var registerButton = $('onepage-guest-register-button');
+            if (registerButton) {
+                this.disableButton(registerButton, true);
+            }
 
-    button.disabled = true;
-    button.addClassName('disabled');
-    return true;
-}
+            return true;
+        },
 
-function recaptchaEnableAllButtons(formElement) {
-    var form = $(formElement).up('form');
-    if (form == undefined) {
-        return false;
-    }
+        disableButton: function (button, allButtons) {
+            return this.toggleButton(button, allButtons, false);
+        },
 
-    if (form.id == 'login-form' && loginForm !== undefined) {
-        buttons = $('checkout-step-login').select('button');
-        if (buttons) {
-            buttons.forEach(function (button) {
-                recaptchaEnableButton(button);
+        enableAllButtons: function (formElement) {
+            var form = $(formElement).up('form');
+
+            if (!form) {
+                return false;
+            }
+
+            this.enableLoginButton(form);
+
+            var that = this;
+            var buttons = form.select('button.button').each(function (button) {
+                that.enableButton(button);
             });
+        },
+
+        enableLoginButton: function (form) {
+            if (this.isLoginForm(form) == false) {
+                return false;
+            }
+
+            buttons = $('checkout-step-login').select('button');
+            if (buttons) {
+                var that = this;
+                buttons.forEach(function (button) {
+                    that.enableButton(button);
+                });
+            }
+
+            var registerButton = $('onepage-guest-register-button');
+            if (registerButton) {
+                this.enableButton(registerButton, true);
+            }
+
+            return true;
+        },
+
+        enableButton: function (button, allButtons) {
+            return this.toggleButton(button, allButtons, true);
+        },
+
+        isLoginForm: function (form) {
+            if (form.id !== 'login-form') {
+                return false;
+            }
+
+            if (typeof(loginForm) == 'undefined') {
+                return false;
+            }
+
+            return true;
+        },
+
+        toggleButton: function (button, allButtons, visible) {
+            if ((allButtons == false || allButtons == undefined) && button.type !== 'submit') {
+                return false;
+            }
+
+            button.disabled = (!visible);
+
+            if (visible) {
+                button.removeClassName('disabled');
+            } else {
+                button.addClassName('disabled');
+            }
         }
+    };
+});
 
-        var registerButton = $('onepage-guest-register-button');
-        if (registerButton) {
-            recaptchaEnableButton(registerButton, true);
-        }
-    }
-
-    var buttons = form.select('button.button').each(function (button) {
-        recaptchaEnableButton(button);
-    });
-}
-
-function recaptchaEnableButton(button, allButtons) {
-    if ((allButtons == false || allButtons == undefined) && button.type !== 'submit') {
-        return false;
-    }
-
-    button.disabled = false;
-    button.removeClassName('disabled');
-    return true;
-}

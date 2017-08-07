@@ -2,7 +2,7 @@
 /**
  * This is a PHP library that handles calling reCAPTCHA.
  *
- * @copyright Copyright 2017, Google Inc.
+ * @copyright Copyright (c) 2015, Google Inc.
  * @link      http://www.google.com/recaptcha
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -35,11 +35,11 @@ class ReCaptcha
      * Version of this client library.
      * @const string
      */
-    const VERSION = 'php_1.1.2';
+    const VERSION = 'php_1.1.3';
 
     /**
      * Shared secret for the site.
-     * @var type string
+     * @var string
      */
     private $secret;
 
@@ -54,6 +54,7 @@ class ReCaptcha
      *
      * @param string $secret shared secret between site and reCAPTCHA server.
      * @param RequestMethod $requestMethod method used to send the request. Defaults to POST.
+     * @throws \RuntimeException if $secret is invalid
      */
     public function __construct($secret, RequestMethod $requestMethod = null)
     {

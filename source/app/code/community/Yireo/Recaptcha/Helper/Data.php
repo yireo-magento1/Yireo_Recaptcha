@@ -109,23 +109,23 @@ class Yireo_Recaptcha_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function includeRecaptcha()
     {
-        if (class_exists('\ReCaptcha\Response', false)) {
+        if (class_exists(\ReCaptcha\Response::class, false)) {
             return;
         }
 
-        if (class_exists('\ReCaptcha\ReCaptcha', false)) {
+        if (class_exists(\ReCaptcha\ReCaptcha::class, false)) {
             return;
         }
 
-        require_once BP . '/app/code/community/Yireo/Recaptcha/Lib/ReCaptcha/ReCaptcha.php';
-        require_once BP . '/app/code/community/Yireo/Recaptcha/Lib/ReCaptcha/Response.php';
-        require_once BP . '/app/code/community/Yireo/Recaptcha/Lib/ReCaptcha/RequestMethod.php';
-        require_once BP . '/app/code/community/Yireo/Recaptcha/Lib/ReCaptcha/RequestParameters.php';
-        require_once BP . '/app/code/community/Yireo/Recaptcha/Lib/ReCaptcha/RequestMethod/Curl.php';
-        require_once BP . '/app/code/community/Yireo/Recaptcha/Lib/ReCaptcha/RequestMethod/Post.php';
-        require_once BP . '/app/code/community/Yireo/Recaptcha/Lib/ReCaptcha/RequestMethod/CurlPost.php';
-        require_once BP . '/app/code/community/Yireo/Recaptcha/Lib/ReCaptcha/RequestMethod/Socket.php';
-        require_once BP . '/app/code/community/Yireo/Recaptcha/Lib/ReCaptcha/RequestMethod/SocketPost.php';
+        require BP . '/app/code/community/Yireo/Recaptcha/Lib/ReCaptcha/ReCaptcha.php';
+        require BP . '/app/code/community/Yireo/Recaptcha/Lib/ReCaptcha/RequestMethod.php';
+        require BP . '/app/code/community/Yireo/Recaptcha/Lib/ReCaptcha/RequestMethod/Curl.php';
+        require BP . '/app/code/community/Yireo/Recaptcha/Lib/ReCaptcha/RequestMethod/CurlPost.php';
+        require BP . '/app/code/community/Yireo/Recaptcha/Lib/ReCaptcha/RequestMethod/Post.php';
+        require BP . '/app/code/community/Yireo/Recaptcha/Lib/ReCaptcha/RequestMethod/Socket.php';
+        require BP . '/app/code/community/Yireo/Recaptcha/Lib/ReCaptcha/RequestMethod/SocketPost.php';
+        require BP . '/app/code/community/Yireo/Recaptcha/Lib/ReCaptcha/RequestParameters.php';
+        require BP . '/app/code/community/Yireo/Recaptcha/Lib/ReCaptcha/Response.php';
     }
 
     /**

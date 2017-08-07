@@ -1,0 +1,30 @@
+{
+    "name": "yireo/magento1-recaptcha",
+    "license": "OSL-3.0",
+    "type": "magento-module",
+    "homepage": "https://www.yireo.com/software/magento-extensions/recaptcha",
+    "description": "Implement Google Recaptcha in Magento",
+    "authors": [
+        {
+            "name": "Jisse Reitsma (Yireo)",
+            "email": "jisse@yireo.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0"
+    },
+    "require-dev":{
+        "phpunit/phpunit":"*",
+        "guzzlehttp/guzzle":"6.*",
+        "composer/composer":"*@dev"
+    },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://packages.firegento.com"
+        }
+    ],
+    "extra":{
+        "magento-root-dir": "source/"
+    }
+}

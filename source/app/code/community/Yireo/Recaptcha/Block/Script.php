@@ -11,20 +11,23 @@
 /**
  * General helper
  */
-class Yireo_Recaptcha_Block_Head extends Yireo_Recaptcha_Block_Abstract
+class Yireo_Recaptcha_Block_Script extends Yireo_Recaptcha_Block_Generic
 {
     /**
-     * @return void
+     * @var string
      */
-    public function _construct()
-    {
-        $rt = parent::_construct();
+    protected $_template = 'recaptcha/script.phtml';
 
+    /**
+     * @return string
+     */
+    public function _toHtml()
+    {
         // If CAPTCHA is not enabled, return nothing
-        if ($this->moduleHelper->useCaptcha() == false) {
-            return;
+        if ($this->moduleHelper->useCaptcha() === false) {
+            return '';
         }
 
-        $this->setTemplate('recaptcha/head.phtml');
+        return parent::_toHtml();
     }
 }

@@ -11,7 +11,7 @@
 /**
  * General helper
  */
-class Yireo_Recaptcha_Block_Abstract extends Mage_Core_Block_Template
+class Yireo_Recaptcha_Block_Generic extends Mage_Core_Block_Template
 {
     /**
      * @var Yireo_Recaptcha_Helper_Data
@@ -23,19 +23,42 @@ class Yireo_Recaptcha_Block_Abstract extends Mage_Core_Block_Template
      */
     public function _construct()
     {
-        $this->moduleHelper = $this->getModuleHelper();
+        $this->moduleHelper = Mage::helper('recaptcha');
 
-        // If CAPTCHA is not enabled, return nothing
-        if ($this->moduleHelper->useCaptcha() == false) {
+        if ($this->moduleHelper->useCaptcha() === false) {
             return;
         }
 
         parent::_construct();
 
-        $this->setSiteKey(trim($this->getConfig('site_key')));
-        $this->setSecretKey(trim($this->getConfig('secret_key')));
+        $this->setSiteKey($this->getConfig('site_key'));
+        $this->setSecretKey($this->getConfig('secret_key'));
         $this->setTheme($this->getConfig('theme'));
         $this->setLangCode($this->getLanguageCode());
+    }
+
+    /**
+     * @param string $siteKey
+     */
+    public function setSiteKey($siteKey)
+    {
+        $this->setData('site_key', trim($siteKey));
+    }
+
+    /**
+     * @param string $secretKey
+     */
+    public function setSecretKey($secretKey)
+    {
+        $this->setData('secret_key', trim($secretKey));
+    }
+
+    /**
+     * @param string $theme
+     */
+    public function setTheme($theme)
+    {
+        $this->setData('theme', $theme);
     }
 
     /**
@@ -56,20 +79,12 @@ class Yireo_Recaptcha_Block_Abstract extends Mage_Core_Block_Template
     }
 
     /**
-     * @param $value
+     * @param string $configName
      *
      * @return mixed
      */
-    protected function getConfig($value)
+    protected function getConfig($configName)
     {
-        return Mage::getStoreConfig('recaptcha/settings/' . $value);
-    }
-
-    /**
-     * @return Yireo_Recaptcha_Helper_Data
-     */
-    protected function getModuleHelper()
-    {
-        return Mage::helper('recaptcha');
+        return Mage::getStoreConfig('recaptcha/settings/' . $configName);
     }
 }
