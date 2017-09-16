@@ -14,6 +14,19 @@
 class Yireo_Recaptcha_Observer_CustomerAccountForgotPasswordSetEmailValue
 {
     /**
+     * @var Mage_Core_Model_Session
+     */
+    protected $coreSession;
+
+    /**
+     * Yireo_Recaptcha_Model_Observer constructor.
+     */
+    public function __construct()
+    {
+        $this->coreSession = Mage::getSingleton('core/session');
+    }
+
+    /**
      * Listen to the event core_block_abstract_to_html_before
      *
      * @event core_block_abstract_to_html_before
@@ -31,7 +44,7 @@ class Yireo_Recaptcha_Observer_CustomerAccountForgotPasswordSetEmailValue
         // Re-insert the email-value for the forgotpassword-block
         $blockClass = 'Mage_Customer_Block_Account_Forgotpassword';
         if ($block instanceof $blockClass) {
-            $block->setEmailValue($this->getCoreSession()->getEmailValue());
+            $block->setEmailValue($this->coreSession->getEmailValue());
         }
 
         return $this;
