@@ -34,7 +34,7 @@ class Yireo_Recaptcha_Helper_Data extends Mage_Core_Helper_Abstract
     /**
      * List of blocks and URLs to override
      *
-     * @parameter null
+     * @param null
      *
      * @return array
      */
@@ -55,7 +55,7 @@ class Yireo_Recaptcha_Helper_Data extends Mage_Core_Helper_Abstract
     /**
      * Load the configured custom URLs as simple array
      *
-     * @parameter null
+     * @param null
      *
      * @return array
      */
@@ -68,7 +68,7 @@ class Yireo_Recaptcha_Helper_Data extends Mage_Core_Helper_Abstract
     /**
      * Load the configured skip URLs as simple array
      *
-     * @parameter null
+     * @param null
      *
      * @return array
      */
@@ -81,7 +81,7 @@ class Yireo_Recaptcha_Helper_Data extends Mage_Core_Helper_Abstract
     /**
      * Convert a CSV string into an array
      *
-     * @parameter null
+     * @param null
      *
      * @return array
      */
@@ -104,7 +104,7 @@ class Yireo_Recaptcha_Helper_Data extends Mage_Core_Helper_Abstract
     /**
      * Include the CAPTCHA library
      *
-     * @parameter null
+     * @param null
      *
      */
     public function includeRecaptcha()
@@ -131,7 +131,7 @@ class Yireo_Recaptcha_Helper_Data extends Mage_Core_Helper_Abstract
     /**
      * Check whether CAPTCHA can be loaded or not
      *
-     * @parameter null
+     * @param null
      *
      * @return boolean
      */
