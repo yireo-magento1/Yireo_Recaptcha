@@ -12,7 +12,7 @@
 <config>
     <modules>
         <Yireo_Recaptcha>
-            <version>0.3.3</version>
+            <version>0.3.4</version>
         </Yireo_Recaptcha>
     </modules>
 

@@ -210,9 +210,9 @@ class Yireo_Recaptcha_Observer_CheckRecaptchaResponse
 
             if ($layoutConfig && stristr($this->request->getOriginalPathInfo(), $postUrl)) {
 
-                if ($layoutUpdate == 'customer_form_login' && stristr($refererUrl, 'checkout/onepage')) {
-                    continue;
-                }
+                //if ($layoutUpdate == 'customer_form_login' && stristr($refererUrl, 'checkout/onepage')) {
+                    //continue;
+                //}
 
                 $this->moduleHelper->debug('Original path info', $this->request->getOriginalPathInfo());
                 $this->moduleHelper->debug('Layout update', $layoutUpdate);
