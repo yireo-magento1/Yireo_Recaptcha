@@ -4,7 +4,7 @@
  *
  * @package     Yireo_Recaptcha
  * @author      Yireo (https://www.yireo.com/)
- * @copyright   Copyright 2017 Yireo (https://www.yireo.com/)
+ * @copyright   Copyright 2018 Yireo (https://www.yireo.com/)
  * @license     Open Source License (OSL v3)
  */
 
@@ -32,24 +32,78 @@ class Yireo_Recaptcha_Helper_Data extends Mage_Core_Helper_Abstract
     }
 
     /**
+     * @return string
+     */
+    public function getSiteKey()
+    {
+        return (string)trim($this->getStoreConfig('site_key'));
+    }
+
+    /**
      * List of blocks and URLs to override
      *
      * @param null
      *
-     * @return array
+     * @return string[]
+     */
+    protected function getConfigurationClasses()
+    {
+        return [
+            Yireo_Recaptcha_Configuration_CustomerLogin::class,
+            Yireo_Recaptcha_Configuration_CustomerRegistration::class,
+            Yireo_Recaptcha_Configuration_CustomerForgotPassword::class,
+            Yireo_Recaptcha_Configuration_ContactForm::class,
+            Yireo_Recaptcha_Configuration_SendFriend::class,
+            Yireo_Recaptcha_Configuration_Review::class,
+            Yireo_Recaptcha_Configuration_OnepageBilling::class,
+            Yireo_Recaptcha_Configuration_OnepageLogin::class,
+        ];
+    }
+
+    /**
+     * @return Yireo_Recaptcha_Configuration_Generic[]
+     */
+    public function getConfigurations()
+    {
+        $configurations = [];
+        foreach ($this->getConfigurationClasses() as $configurationClass) {
+            $configurations[] = new $configurationClass;
+        }
+
+        return $configurations;
+    }
+
+    /**
+     * List of blocks and URLs to override
+     *
+     * @param null
+     *
+     * @return Yireo_Recaptcha_Configuration_Generic[]
+     * @deprecated Use getConfigurations instead
      */
     public function getOverwrites()
     {
-        return array(
-            'customer_form_register' => 'customer/account/createPost/',
-            'customer_form_login' => 'customer/account/loginPost/',
-            'customer_form_forgotpassword' => 'customer/account/forgotPasswordPost/',
-            'contacts_form' => 'contacts/index/post/',
-            'sendfriend_send' => 'sendfriend/product/send/',
-            'review_form' => 'review/product/post/',
-            'checkout_onepage_login' => 'customer/account/loginPost/',
-            'checkout_onepage_billing' => 'checkout/onepage/saveBilling/',
-        );
+        return $this->getConfigurations();
+    }
+
+    /**
+     * @param string $matchUrl
+     * @param string[] $urls
+     * @return bool
+     */
+    public function matchUrls($matchUrl, $urls)
+    {
+        foreach ($urls as $url) {
+            if (stristr($url, $matchUrl)) {
+                return true;
+            }
+
+            if (stristr($matchUrl, $url)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -175,8 +229,8 @@ class Yireo_Recaptcha_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function debug($message, $variable = null)
     {
-        $debugging = $this->getStoreConfig('debugging');
-        if ($debugging == false) {
+        $debugging = (bool)$this->getStoreConfig('debugging');
+        if ($debugging === false) {
             return;
         }
 
@@ -184,7 +238,7 @@ class Yireo_Recaptcha_Helper_Data extends Mage_Core_Helper_Abstract
             $message .= ' = ' . $variable;
         }
 
-        Mage::log($message, 'yireo_recaptcha.log');
+        Mage::log($message, null, 'yireo_recaptcha.log');
     }
 
     /**

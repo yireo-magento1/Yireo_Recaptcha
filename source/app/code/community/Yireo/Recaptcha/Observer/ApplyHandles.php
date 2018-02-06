@@ -34,15 +34,31 @@ class Yireo_Recaptcha_Observer_ApplyHandles
      */
     public function execute(Varien_Event_Observer $observer)
     {
-        $overwrites = $this->moduleHelper->getOverwrites();
+        $configurations = $this->moduleHelper->getConfigurations();
 
         /** @var Mage_Core_Model_Layout_Update $layoutUpdate */
         $layoutUpdate = $observer->getEvent()->getLayout()->getUpdate();
+        $currentUrl = Mage::app()->getRequest()->getRequestUri();
 
-        foreach ($overwrites as $layoutUpdateHandle => $postUrl) {
-            if ($this->moduleHelper->getStoreConfig('overwrite_' . $layoutUpdateHandle)) {
-                $layoutUpdate->addHandle('recaptcha_' . $layoutUpdateHandle);
+        foreach ($configurations as $configuration) {
+            if (!$this->isConfigurationEnabled($configuration)) {
+                continue;
             }
+
+            if (!$this->moduleHelper->matchUrls($currentUrl, $configuration->getDisplayUrls())) {
+                continue;
+            }
+
+            $layoutUpdate->addHandle($configuration->getLayoutHandle());
         }
+    }
+
+    /**
+     * @param Yireo_Recaptcha_Configuration_Generic $configuration
+     * @return bool
+     */
+    private function isConfigurationEnabled(Yireo_Recaptcha_Configuration_Generic $configuration)
+    {
+        return (bool) $this->moduleHelper->getStoreConfig('overwrite_' . $configuration->getId());
     }
 }

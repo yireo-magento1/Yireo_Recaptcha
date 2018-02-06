@@ -81,10 +81,10 @@ class Yireo_Recaptcha_Observer_CheckRecaptchaResponse
             return $this;
         }
 
-        // Check for Recaptcha response
+        // Set a response header for later checking
         $this->response->setHeader('X-Recaptcha-Checking', 1);
 
-        // Recaptcha returned false
+        // Recaptcha returned valid
         if ($this->getRecaptchaValid() === true) {
             return $this;
         }
@@ -187,7 +187,7 @@ class Yireo_Recaptcha_Observer_CheckRecaptchaResponse
         }
 
         if ($this->observerHelper->matchSkipUrls($this->request->getOriginalPathInfo())) {
-            $this->moduleHelper->debug('Recaptcha skipped for URL', $this->request->getOriginalPathInfo());
+            $this->moduleHelper->debug('ReCaptcha skipped for URL', $this->request->getOriginalPathInfo());
             return false;
         }
 
@@ -195,39 +195,40 @@ class Yireo_Recaptcha_Observer_CheckRecaptchaResponse
         if (is_array($post)) {
             foreach ($post as $name => $value) {
                 if (stristr($name, 'recaptcha')) {
-                    $this->moduleHelper->debug('Recaptcha enabled because of detected field', $name);
+                    $this->moduleHelper->debug('ReCaptcha enabled because of detected field', $name);
                     return true;
                 }
             }
         }
 
         // Check for POST URLs configured in the code, and enable checking
-        $overwrites = $this->moduleHelper->getOverwrites();
-        foreach ($overwrites as $layoutUpdate => $postUrl) {
+        $configurations = $this->moduleHelper->getConfigurations();
+        foreach ($configurations as $configuration) {
+
+            $requestPath = $this->request->getOriginalPathInfo();
+            if (!$this->moduleHelper->matchUrls($requestPath, $configuration->getValidationUrls())) {
+                continue;
+            }
 
             $refererUrl = $this->getRefererUrl();
-            $layoutConfig = $this->moduleHelper->getStoreConfig('overwrite_' . $layoutUpdate);
-
-            if ($layoutConfig && stristr($this->request->getOriginalPathInfo(), $postUrl)) {
-
-                //if ($layoutUpdate == 'customer_form_login' && stristr($refererUrl, 'checkout/onepage')) {
-                    //continue;
-                //}
-
-                $this->moduleHelper->debug('Original path info', $this->request->getOriginalPathInfo());
-                $this->moduleHelper->debug('Layout update', $layoutUpdate);
-                $this->moduleHelper->debug('Layout config', $layoutConfig);
-                $this->moduleHelper->debug('Referer URL', $refererUrl);
-                $this->moduleHelper->debug('Recaptcha enabled for POST URL', $postUrl);
-                return true;
+        $layoutHandle = $configuration->getLayoutHandle();
+            $layoutEnabled = (bool)$this->moduleHelper->getStoreConfig('overwrite_' . $configuration->getId());
+            if ($layoutEnabled === false) {
+                continue;
             }
+
+            $this->moduleHelper->debug('Request URI', $this->request->getRequestUri());
+            $this->moduleHelper->debug('Original path info', $this->request->getOriginalPathInfo());
+            $this->moduleHelper->debug('Layout update "'.$layoutHandle.'" enabled');
+            $this->moduleHelper->debug('Referer URL', $refererUrl);
+            return true;
         }
 
         // Check for POST URLs configured in the configuration, and enable checking
-        $custom_urls = $this->moduleHelper->getCustomUrls();
-        foreach ($custom_urls as $custom_url) {
-            if (stristr($this->request->getOriginalPathInfo(), $custom_url)) {
-                $this->moduleHelper->debug('Recaptcha enabled for custom URL', $custom_url);
+        $customUrls = $this->moduleHelper->getCustomUrls();
+        foreach ($customUrls as $customUrl) {
+            if (stristr($this->request->getOriginalPathInfo(), $customUrl)) {
+                $this->moduleHelper->debug('Recaptcha enabled for custom URL', $customUrl);
                 return true;
             }
         }
@@ -243,14 +244,14 @@ class Yireo_Recaptcha_Observer_CheckRecaptchaResponse
     protected function getRecaptchaValid()
     {
         $remoteIp = $this->request->getServer('REMOTE_ADDR');
-
         $secretKey = Mage::getStoreConfig('recaptcha/settings/secret_key');
-        $recaptcha = new \ReCaptcha\ReCaptcha($secretKey);
+        $clientResponse = $this->request->getPost('g-recaptcha-response');
 
-        $response = $recaptcha->verify($this->request->getPost('g-recaptcha-response'), $remoteIp);
+        $reCaptcha = new \ReCaptcha\ReCaptcha($secretKey);
+        $response = $reCaptcha->verify($clientResponse, $remoteIp);
 
-        $recaptchaValid = ($response !== null && $response->isSuccess()) ? true : false;
-        if ($recaptchaValid) {
+        $reCaptchaValid = ($response !== null && $response->isSuccess()) ? true : false;
+        if ($reCaptchaValid) {
             return true;
         }
 

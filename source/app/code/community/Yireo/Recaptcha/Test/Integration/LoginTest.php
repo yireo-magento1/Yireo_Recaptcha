@@ -6,8 +6,8 @@
  * - Make sure guzzlehttp/guzzle is installed through composer
  * - Create a dummy PHP script in your Magento root with the following content:
  *
- * include_once 'vendor/autoload.php';
- * include 'app/Mage.php';
+ * require_once 'vendor/autoload.php';
+ * require_once 'app/Mage.php';
  * Mage::app();
  * $username = 'foo';
  * $password = 'bar';
@@ -32,8 +32,10 @@ class Yireo_Recaptcha_Test_Integration_LoginTest
     {
         $client = new \GuzzleHttp\Client(['cookies' => true]);
         $cookieJar = new \GuzzleHttp\Cookie\CookieJar;
+        $customerLoginUrl = Mage::getUrl('customer/account/login');
+        $customerLoginPostUrl = Mage::getUrl('customer/account/loginPost');
 
-        $res = $client->request('GET', Mage::getUrl('customer/account/login'), ['cookies' => $cookieJar]);
+        $res = $client->request('GET', $customerLoginUrl, ['cookies' => $cookieJar]);
         $body = $res->getBody();
         $formKey = '';
 
@@ -53,11 +55,11 @@ class Yireo_Recaptcha_Test_Integration_LoginTest
             ]
         ];
 
-        $res = $client->request('POST', Mage::getUrl('customer/account/loginPost'), ['cookies' => $cookieJar, 'form_params' => $data]);
-        $body = $res->getBody();
+        $response = $client->request('POST', $customerLoginPostUrl, ['cookies' => $cookieJar, 'form_params' => $data]);
+        $body = $response->getBody();
 
-        if (!stristr($body, '<li><span>Invalid captcha</span></li>')) {
-            throw new Exception('Invalid request is not blocked');
+        if (stristr($body, 'Invalid captcha')) {
+            throw new Yireo_Recaptcha_Exception_InvalidCaptcha('Invalid request is blocked by reCAPTCHA');
         }
 
         return true;
